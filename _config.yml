@@ -27,8 +27,7 @@ excerpt_separator: "<!--more-->"
 
 comments: true
 
-theme: jekyll-whiteglass
-plugins:
+gems:
   - jekyll-feed
   - jekyll-archives
   - jekyll-paginate

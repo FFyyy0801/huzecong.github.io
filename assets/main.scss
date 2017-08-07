@@ -1,0 +1,100 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+// Our variables
+//$base-font-family: Bitter, "Apple SD Gothic Neo", AppleGothic, NanumBarunGothic, "Malgun Gothic", Dotum, sans-serif;
+$base-font-family: Georgia, 'Helvetica Neue', 'Helvetica', "Songti SC", sans-serif;
+$monospace-font-family: Monaco, Menlo, Consolas, "Courier New", DotumChe, monospace;
+$base-font-size:   16px;
+$base-font-weight: 400;
+$small-font-size:  $base-font-size * 0.875;
+$base-line-height: 1.5;
+
+$spacing-unit:     30px;
+
+$text-color:       #111;
+$background-color: #fdfdfd;
+$brand-color:      #2568ba;
+
+$grey-color:       #828282;
+$grey-color-light: lighten($grey-color, 40%);
+$grey-color-dark:  darken($grey-color, 25%);
+
+// Width of the content area
+$content-width:    800px;
+
+$on-palm:          600px;
+$on-laptop:        800px;
+
+
+
+// whiteglass also includes a mixin for defining media queries.
+// Use media queries like this:
+// @include media-query($on-palm) {
+//     .wrapper {
+//         padding-right: $spacing-unit / 2;
+//         padding-left: $spacing-unit / 2;
+//     }
+// }
+@mixin media-query($device) {
+  @media screen and (max-width: $device) {
+    @content;
+  }
+}
+
+// Import partials from the `whiteglass` theme.
+@import "whiteglass";
+
+.post-list {
+  > li {
+    margin-bottom: $spacing-unit * 2;
+
+    &:not(:first-child)/*, &:first-child */{
+      border-top: 1px solid $grey-color-light;
+      padding-top: $spacing-unit * 2;
+    }
+  }
+}
+
+// Add an underline with a wider gap
+@mixin fake-underline($color: #666, $top: 84%, $bottom: 90%) {
+  background-image: linear-gradient(
+    180deg, rgba(0,0,0,0),
+    rgba(0,0,0,0) $top,
+    $color $top + 0.1%,
+    $color $bottom,
+    rgba(0,0,0,0) $bottom + 0.1%,
+    rgba(0,0,0,0)
+  );
+  text-decoration: none;
+}
+
+@mixin add-underline($color) {
+  color: $color;
+  @include fake-underline($color, 95%, 100%);
+  &:hover {
+    @include fake-underline($color, 90%, 100%);
+  }
+}
+
+.post-content {
+  h2, h3, h4, h5, b, strong {
+    font-family: "SourceHanSansCN", "思源黑体 CN", "Hiragino Sans GB", "冬青黑体", "Microsoft YaHei New", "Microsoft Yahei", "微软雅黑", "STXihei", "华文细黑", sans-serif;
+  }
+
+  a {
+    @include add-underline(#2568ba);
+  }
+  a:visited {
+    @include add-underline(#1d508f);
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+hr {
+  height: 1px;
+}

@@ -65,7 +65,7 @@ $$
 而 $f_{r+1}$ 的式子可以改写如下：
 
 $$
-f_{r+1}(n) = \sum_{d|n}f_r(d) = \sum_{d|n}f_r(d)\cdot 1
+f_{r+1}(n) = \sum_{d\mid n}f_r(d) = \sum_{d\mid n}f_r(d)\cdot 1
 $$
 
 记 $1(n)$ 为常数函数 $1(n)=1$ ，那么可以将上式表示为Dirichlet卷积的形式：
@@ -79,15 +79,15 @@ $$
 $$
 \begin{align*}
 1^2(n) & = (1 \ast 1)(n) \\
- & = \sum_{d|n}1\cdot 1 \\
+ & = \sum_{d\mid n}1\cdot 1 \\
 1^3(n) & = (1^2 \ast 1)(n) \\
- & = \sum_{d_2|n}\left(\sum_{d_1|d_2}1\cdot 1\right)\cdot 1 \\
+ & = \sum_{d_2\mid n}\left(\sum_{d_1\mid d_2}1\cdot 1\right)\cdot 1 \\
  & \cdots \\
-1^r(n) & = \sum_{d_1|d_2|\cdots|d_{r-1}|n}1
+1^r(n) & = \sum_{d_1\mid d_2\mid \cdots\mid d_{r-1}\mid n}1
 \end{align*}
 $$
 
-换句话说，即求长度为 $r-1$ 的序列 $d_1,\ldots,d_{r-1}$ 的方案数，其中序列满足 $d_i|d_{i+1}$ ， $d_{r-1}|n$ 。
+换句话说，即求长度为 $r-1$ 的序列 $d_1,\ldots,d_{r-1}$ 的方案数，其中序列满足 $d_i\mid d_{i+1}$ ， $d_{r-1}\mid n$ 。
 
 记 $n$ 的质因数分解为 $n=\prod p_i^{k_i}$ ，仅考虑一个质因子 $p_i$ ，那么 $d_1,\ldots,d_{r-1}$ 的每个数所包含的 $p_i$ 的次数都不应大于 $k_i$ ，且前一个数的次数不应大于后一个数的次数。问题就变成了：求长度为 $r-1$ 且最大数不超过 $k_i$ 的非负非降序列的方案数。用隔板法可以知道方案数为
 
@@ -104,7 +104,7 @@ $$
 
 
 $$
-f_{r}(n) = (f_0 \ast 1^{r-1})(n) = \sum_{d|n}f_0(d)\cdot 1^{r-1}\left(\frac{n}{d}\right)
+f_{r}(n) = (f_0 \ast 1^{r-1})(n) = \sum_{d\mid n}f_0(d)\cdot 1^{r-1}\left(\frac{n}{d}\right)
 $$
 
 
@@ -120,8 +120,8 @@ $$
 
 $$
 \begin{align*}
-f_r(n) & = \sum_{d|n}\left(\prod_i (1+[q_i>0])\right)\left(\prod_i \binom{k_i-q_i+r-1}{r-1}\right) \\
- & = \sum_{d|n}\prod_i (1+[q_i>0])\binom{k_i-q_i+r-1}{r-1} \\
+f_r(n) & = \sum_{d\mid n}\left(\prod_i (1+[q_i>0])\right)\left(\prod_i \binom{k_i-q_i+r-1}{r-1}\right) \\
+ & = \sum_{d\mid n}\prod_i (1+[q_i>0])\binom{k_i-q_i+r-1}{r-1} \\
  & = \prod_i\sum_{q_i=0}^{k_i} (1+[q_i>0])\binom{k_i-q_i+r-1}{r-1}
 \end{align*}
 $$

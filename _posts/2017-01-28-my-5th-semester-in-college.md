@@ -197,8 +197,7 @@ lang: zh-CN
 
 这个大作业其实很有意思，至少我写的很开心。和韦师一组，这次终于没有当猪队友。也是拖到最后一周才开始写的，最后到验收为止也只实现了所有基础功能。但之后我们接着往下写，加入了索引和查询优化。估计助教根本没看最后提交的代码和报告。
 
-总之我还是觉得这份大作业做的挺不错的，也是我这学期大作业中唯一放到GitHub上的。贴一下链接： 
-- https://github.com/huzecong/rebaseDB。
+总之我还是觉得这份大作业做的挺不错的，也是我这学期大作业中唯一放到GitHub上的。贴一下链接：[https://github.com/huzecong/rebaseDB](https://github.com/huzecong/rebaseDB)。
 
 ### 环境保护与可持续发展
 

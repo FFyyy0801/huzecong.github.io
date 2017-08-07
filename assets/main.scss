@@ -71,11 +71,33 @@ $on-laptop:        800px;
   text-decoration: none;
 }
 
+$link-color: #2568ba;
+$link-visited-color: #1d508f;
+
 @mixin add-underline($color) {
   color: $color;
   @include fake-underline($color, 95%, 100%);
   &:hover {
     @include fake-underline($color, 90%, 100%);
+  }
+}
+
+.post-content {
+  a {
+    @include add-underline($link-color);
+  }
+  a:visited {
+    @include add-underline($link-visited-color);
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+a.useless-category-tag {
+  text-decoration: none;
+  &:hover {
+    color: $link-color;
   }
 }
 
@@ -94,16 +116,6 @@ $on-laptop:        800px;
   }
   h5, b, strong {
     font-weight: 600;
-  }
-
-  a {
-    @include add-underline(#2568ba);
-  }
-  a:visited {
-    @include add-underline(#1d508f);
-  }
-  a:hover {
-    text-decoration: none;
   }
 }
 

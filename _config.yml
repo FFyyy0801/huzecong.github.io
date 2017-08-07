@@ -13,7 +13,8 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Hu Zecong
+title: Hu Zecong's blog
+author: Hu Zecong
 email: huzecong@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   The personal blog of Hu Zecong. Contains diaries, tech articles, and gibberish.
@@ -46,9 +47,10 @@ paginate: 5
 jekyll-archives:
   enabled:
     - categories
+    - year
   layout: category_archives
   permalinks:
-    category: /categories/:name/
+    category: /category/:name/
 
 google_analytics: UA-48327586-2
 

@@ -23,7 +23,7 @@ lang: zh-CN
 大二下的总结就是在Java小学期在台湾的时候写的，可见当时多么闲。从台湾回来之后就开始做大作业了，过上了正常的码农生活。所幸当时天龙和韦师也在学校，每天的生活不至于无聊到过不下去。大作业要写一个网络对战的翻转棋，基本上就是大一小学期的五子棋的翻版了。说实话挺没意思的，感觉不如学安卓开发有意义。但不管怎么样，这也是我花时间最多，完成度最高的一个大作业。一共花了10天的时间，写了200多KB的（Java）代码。最后的结果也算令我满意了吧，虽然只学到了一些多半派不上用场的东西。贴一下GitHub链接骗流量：[https://github.com/huzecong/ReversiDuel](https://github.com/huzecong/ReversiDuel)。
 
 > 图0：大作业ReversiDuel截图
-![ReversiDuel](https://github.com/huzecong/ReversiDuel/raw/master/doc/image-hd/game-board.jpg)
+> ![ReversiDuel](https://github.com/huzecong/ReversiDuel/raw/master/doc/image-hd/game-board.jpg)
 
 之后就是汇编小学期了。整整5周，闲的不行。不过因为还有FPGA和ACM这两件事，所以过的也还算充实，详细的下面讲。整门课都不难，但不知道是考试粗心还是有次作业没交上= =最后分数一般。
 
@@ -36,7 +36,7 @@ lang: zh-CN
 香港的环境还是很好的，港科技的校园也很漂亮。不过香港物价是真高= =最后有一天可以用来旅游，去海洋公园转了一圈。美中不足大概就是回来的时候错过了汇编的一个DDL吧= =可能就是这次作业没交上。
 
 > 图1：港科技校园的一部分
-![港科技校园的一部分]({{ site.url }}/assets/images{{ page.id }}/1-hkust-campus.jpg)
+> ![港科技校园的一部分]({{ site.url }}/assets/images{{ page.id }}/1-hkust-campus.jpg)
 
 ## FPGA设计大赛
 
@@ -49,26 +49,26 @@ lang: zh-CN
 听上去挺厉害的吧。但我们在课程结束的时候只做到了：在屏幕上显示摄像头的黑白图像，然后画一个内置图形的线框上去，还可能按概率出现各式奇妙的现象。所以我们暑假花了整整一个月的时间搞这个事情。先是修复了一大堆潜在的时序bug，然后终于弄明白了怎么让摄像头给我们彩色图形；然后兵分三路，我写识别和测距，天龙写渲染，韦师继续肝硬件部分。到复赛提交DDL之前连着熬了两天，总算是弄出了个像样的玩意儿，拍了个视频交了上去。
 
 > 图2：测距算法调试现场
-![测距算法调试现场]({{ site.url }}/assets/images{{ page.id }}/2-debugging-distance-measurement.jpg)
+> ![测距算法调试现场]({{ site.url }}/assets/images{{ page.id }}/2-debugging-distance-measurement.jpg)
 
 ＊
 > 图3：复赛版本的系统
-![复赛版本的系统]({{ site.url }}/assets/images{{ page.id }}/3-fpga-system.jpg)
+> ![复赛版本的系统]({{ site.url }}/assets/images{{ page.id }}/3-fpga-system.jpg)
 
 当时肝完这波正好第二天就去香港打ACM了。等到听到进了决赛的消息已经是9月中旬了。决赛在10月中旬，也就是说我们在去比赛之前还有差不多一个月时间用来调整和包装。现在这个系统虽然能work，但还是不太稳定，而且卖相不好。之前说的“绘制笔”，我们都是直接拿一张绿色纸片代替的；上图中连接两个摄像头的那根金属棍，其实是我买的拆机工具，拿强力胶黏上去的。
 
 李山山老师非常慷慨地让我们随便用实验室里的器材。我们用3D打印机打出了一个棒棒糖一样的物体来当绘制笔；然后把散成一团的杜邦线换成了自制的排线，又设计了一个摄像头支架和底座，以取代这根手一抖就掉下来了的金属棍。我们也修复了一些bug，把界面弄得逼格高了一点，然后用上了毕生所习得的装逼技巧写了一份paper，做了一张poster。
 
 > 图4：第一根~~棒棒糖~~绘制笔，真的是个球体
-![棒棒糖]({{ site.url }}/assets/images{{ page.id }}/4-first-lollipop-pen.jpg)
+> ![棒棒糖]({{ site.url }}/assets/images{{ page.id }}/4-first-lollipop-pen.jpg)
 
 ＊
 > 图5：仿佛是在金工实习
-![金工实习]({{ site.url }}/assets/images{{ page.id }}/5-rough-polishing.jpg)
+> ![金工实习]({{ site.url }}/assets/images{{ page.id }}/5-rough-polishing.jpg)
 
 ＊
 > 图6：展示现场的成品系统，左边是我们的poster
-![展示现场]({{ site.url }}/assets/images{{ page.id }}/6-onsite-workshop.jpg)
+> ![展示现场]({{ site.url }}/assets/images{{ page.id }}/6-onsite-workshop.jpg)
 
 线下的决赛在武汉。主办方提供的住宿条件不错，在那边我们又通了个宵，我在做展示幻灯片和写演讲稿，韦师和天龙在修一些奇妙的bug。最后演讲似乎得到了外籍专家的肯定，展示也平安无事地度过了。这里有几个特别好玩的事情：
 
@@ -79,11 +79,11 @@ lang: zh-CN
 最后，鉴于我们优秀的装逼技巧和精湛的演技，我们获得了特等奖（一共三组）。总的还是很开心的（毕竟钱还不少），而且也算是对这半年断断续续的付出的一种肯定吧。虽然不知道干的这些对自己有什么用，虽然中途也遇到过瓶颈，虽然也一度觉得麻烦感到后悔，但至少，整个过程还是很开心的。我想这就够了。
 
 > 图7：奖状和看上去很霸气的奖金牌子
-![奖状和奖金]({{ site.url }}/assets/images{{ page.id }}/7-certificate-and-prize.jpg)
+> ![奖状和奖金]({{ site.url }}/assets/images{{ page.id }}/7-certificate-and-prize.jpg)
 
 ＊
 > 图8：看上去很高兴的李山山老师和不知道为什么愁眉苦脸的我们
-![FPGA现场合影]({{ site.url }}/assets/images{{ page.id }}/8-group-photo-of-us-and-our-teacher.jpg)
+> ![FPGA现场合影]({{ site.url }}/assets/images{{ page.id }}/8-group-photo-of-us-and-our-teacher.jpg)
 
 ## 文艺部
 
@@ -119,11 +119,11 @@ lang: zh-CN
 晚会之后一起去聚餐，因为有这群会玩的人，气氛比去年要热烈不少。这次也刷新了我去年的记录，成了喝的最多的一次（但我酒量本来就小，所以其实也没喝多少），出门的时候感觉有点走不直了。之后又和大家一起在KTV唱到6点才回去，第一次体验到宿醉的感觉。
 
 > 图9：晚会现场的文艺部合影
-![文艺部合影1]({{ site.url }}/assets/images{{ page.id }}/9-group-photo-of-art-dept.jpg)
+> ![文艺部合影1]({{ site.url }}/assets/images{{ page.id }}/9-group-photo-of-art-dept.jpg)
 
 ＊
 > 图10：聚餐中的文艺部合影
-![文艺部合影]({{ site.url }}/assets/images{{ page.id }}/10-group-photo-of-art-dept-having-dinner.jpg)
+> ![文艺部合影]({{ site.url }}/assets/images{{ page.id }}/10-group-photo-of-art-dept-having-dinner.jpg)
 
 之后的几天真的有种怅然若失的感觉，就像是追了很久的漫画完结了一般。记得在大二上的总结里说，还想再体验一次学生节结束那一刻的喜悦。算是遂了这个愿了，只是可惜也没有机会再实现一次这个愿望了。
 

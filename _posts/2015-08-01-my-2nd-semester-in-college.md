@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "大一下总结"
-date:   2015-07-31 22:02:00 +0800
+date:   2015-08-01 10:02:00 +0800
 categories: diary
 lang: zh-CN
 ---

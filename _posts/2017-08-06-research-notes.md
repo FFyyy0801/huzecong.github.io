@@ -31,7 +31,7 @@ A beginner in the field of NLP
 
 #### General Idea
 
-A language model than can predict tokens and phrases. Phrases are extracted from training data. To speed up training, a subset of phrases are selected at each time step. Probabilities are marginalized over all possible segmentations of training sentence to phrases and tokens.
+A language model that can predict tokens and phrases. Phrases are extracted from training data. To speed up training, a subset of phrases are selected at each time step. Probabilities are marginalized over all possible segmentations of training sentence to phrases and tokens.
 
 #### Description
 

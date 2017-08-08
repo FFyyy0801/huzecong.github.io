@@ -27,84 +27,6 @@ A beginner in the field of NLP
 
 
 
-## Research Topic
-
-#### General Idea
-
-A language model that can predict tokens and phrases. Phrases are extracted from training data. To speed up training, a subset of phrases are selected at each time step. Probabilities are marginalized over all possible segmentations of training sentence to phrases and tokens.
-
-#### Description
-
-Basically, our model can either predict a token or a phrase. Particularly, we want to use all phrases from the training data that are interesting. A nice criteria could be to find maximal substrings with more than one occurrence. Suffix data structures could be utilized to efficiently find the substrings.
-
-Naive model would use a softmax over all tokens and phrases, but this is computationally expensive. Methods we can try:
-
-- Negative sampling & importance sampling
-- Hierarchical softmax (Graham said may not work too well)
-- KNN search: linearly transform hidden state into embedding space, and find top-K nearest neighbors as candidate phrases. Locality sensitive hashing could be applied, as only hashes of the K phrases would be changed
-  This method is also easier for the model to generalize to machine translation tasks
-
-We may also need to manually include true match phrases in addition to top-KNNs during (the beginning of) training, because the model may not be able to find the correct candidates at the beginning.
-
-There may be more than one correct match: any prefix of the current suffix of training sentence is a correct match. We need to marginalize over different paths using either Latent Predictor Networks or Neural Lattice Models.
-
-#### Ideas
-
-- **On combining char-level and word-level embeddings**
-  - Word-level embeddings can be represented by running a Bi-LSTM over individual character embeddings, thus reducing model size.
-  - Computationally expensive; can be improved by first using above methods (KNN search etc.) to select candidates and then run LSTMs for the selected subset.
-- ​
-
-## Current Progress
-
-#### Week 1 (6.29 - 7.5)
-
-**Objective**: Read course materials and implement homework
-
-**Progress**
-
-- Just beginning, learning the basics of language models
-- Trained LSTM models using DyNet
-- Configured the TIR cluster
-
-#### Week 2 (7.6 - 7.12)
-
-**Objective**: Tune the model to match paper performance; learn enhanced suffix arrays
-
-**Progress**
-
-- Matched paper performance
-- Read papers regarding the problem
-- Learned about basics of suffix arrays
-
-#### Week 3 (7.13 - 7.19)
-
-**Objective**: Implement LPN or lattice model, using frequent bigrams (or maybe words?) as vocabulary
-
-**Progress**
-
-- Implemented LPN with top-1000 words as vocabulary
-
-
-#### Week 4 (7.20 - 7.27)
-
-**Objective:** Tune the LPN model to achieve decent perplexity values
-
-**Progress**
-
-- Did experiments using LPN variations
-- Refactored code
-- Implemented truncated backprop
-
-
-#### Week 5 (7.28 - 8.4)
-
-**Objective:** Same as last week
-
-**Progress**
-
-- ​
-
 ## Tips in Training
 
 #### Dropout
@@ -187,7 +109,7 @@ There may be more than one correct match: any prefix of the current suffix of tr
 #### Entropy, Cross Entropy Loss, and KL-Divergence
 
 - Shannon **Entropy** of a probability distribution is defined as
-  
+
   $$
   H(p)=\mathbb{E}_p[-\log p]=-\sum_{x_i}p(x_i)\log p(x_i)
   $$

@@ -32,15 +32,20 @@ A beginner in the field of NLP
 #### Dropout
 
 - Apply a random mask on parameters: each parameter is zeroed with a probability of $p$, note that output would be scaled down to $1-p$ compared to values when dropout is not applied
+
 - **Inverted dropout**: Rescale output to $1/(1-p)$ during training, so no special treatment is required for using the models
+
 - **Dropout for embeddings**: zero out entire vectors for random word IDs
+
 - **Dropout for LSTMs**: apply to <u>input</u> and <u>hidden state</u>, rather than parameters. Dropout mask is the same for each time step on one training sample *(ref: [A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](https://arxiv.org/pdf/1512.05287.pdf))*
+
 - **Dropout for final FC layer in LSTMs**: apply to <u>LSTM output</u>, rather than FC parameters
 
 #### Evaluating similarity
 
 - To evaluate similarities of $h_L$ and $h_R$ based on ratings of $[1,K]$, we can jointly train a MLP based on:
-- $$
+
+  $$
   \begin{align*}
   h_\times &= h_L\odot h_R \\
   h_+ &= \vert h_L-h_R \vert \\
@@ -85,11 +90,16 @@ A beginner in the field of NLP
 #### Exposure bias and scheduled sampling
 
 - **Exposure bias**: In sequential models, during training, we feed the ground-truth label at the previous time step as input, no matter what the output prediction was; while during testing, we always feed the previous output. This way, the model is "exposed" to the ground-truth, even when it was not able to make such predictions. The model may also fail to capture relations between the next state and the previous output.
+
 - **Scheduled sampling**: At each time step, use previous label by probability $1-p$, and use "teacher forcing" (feed ground-truth) by probability $p$.
+
   $p$ is set to a high value at the beginning of training, and eventually anneal to a close to 0 value (thus the name "scheduled" sampling).
   See also: [https://www.evernote.com/shard/s189/sh/c9ac2e3f-a150-4d0c-9a44-16657e5d42cd/5eb49d50695c903ca1b4a04934e63363](https://www.evernote.com/shard/s189/sh/c9ac2e3f-a150-4d0c-9a44-16657e5d42cd/5eb49d50695c903ca1b4a04934e63363)
+
 - **Drawbacks of scheduled sampling**: When previous label was used, we were using the result of argmax of the softmax at previous time step as input, and naturally we would like to back propagate through such calculations. However, argmax is non-differentiable.
+
   The reason back propagating through argmax is desirable is that, the actual cause for predicting a wrong label at the current time step may be that wrong predictions were made at previous time steps (cascading error).
+
 - **Soft argmax and differentiable scheduled sampling** *(ref: [Differentiable Scheduled Sampling for Credit Assignment](https://arxiv.org/pdf/1704.06970.pdf))*: *<u>(more details to be described)</u>*
 
 
@@ -137,10 +147,15 @@ A beginner in the field of NLP
 #### Tied Input and Output Embeddings
 
 - Let $L$ be the input embedding, such that input to the LSTM is $x_t = Ly^*_{t-1}$
+
 - Replace the dense layer $y_t=\mathrm{softmax}(Wh_t+b)$ following the LSTM unit by the **transpose** of the embedding, i.e. $y_t=\mathrm{softmax}\left(L^\top h_t\right)$ *(ref: [Tying Word Vectors and Word Classifiers etc.](https://arxiv.org/pdf/1611.01462.pdf))*
+
 - Since input and output are in the same space, it is reasonable to assume they're related by a linear transformation $A$. Tying embeddings results in minimizing w.r.t. vector similarities:
+
   - Let $u_t=Ly^*_t$, i.e. the embedding of the actual output. By minimizing w.r.t. vector similarities, we would like the probability $y_t$ be related to similarity metrics, concretely $y_t=\tilde{y_t}=\mathrm{softmax}\left(L^\top u_t\right)$, where we use inner product as measurement of similarity.
+
   - In order to minimize loss, $h_t$ would be adjusted to be closer to the appropriate column of $L$.
+
   - If we apply KL-divergence as loss, $\tilde{y_t}$ could be used as the estimated true distribution. Other class labels are also utilized during backprop, compared to the case when one-hot encoding is used.
 
 #### Softmax Approximations by Sampling
@@ -170,8 +185,43 @@ A beginner in the field of NLP
 
 - **Importance sampling**: 
 
-  - Expectation can be calculated using Monte Carlo methods: average of samples.
-  - To avoid computing actual probabilities (which is the same as calculating softmax), use another distribution $Q$ similar to the target distribution $P$.
+  - Expectation can be calculated using Monte Carlo methods: average of samples multiplied by its probability.
+
+  - To avoid computing actual probabilities (which is the same as calculating softmax), sample from another distribution $Q$ similar to the target distribution $P$, for instance, the unigram distribution.
+
+  - Suppose we're to calculate $\mathbb{E}_{x\sim P}[f(x)]$, which in continuous form is equivalent to
+    
+    $$
+    \mathbb{E}_{x\sim P}[f(x)]=\int f(x)p(x)\d x
+    $$
+    
+    where $p(x)$ is the PDF of distribution $P$. We can calculate the integration w.r.t. a different distribution $Q$ with PDF $q(x)$ by evaluating:
+    
+    $$
+    \int f(x)p(x)\d x=\int \frac{f(x)p(x)}{q(x)}q(x)\d x=\mathbb{E}_{x\sim Q}\left[\frac{f(x)p(x)}{q(x)}\right]
+    $$
+    
+    When $Q$ is similar to $P$, doing Monte Carlo integration w.r.t. $Q$ can decrease variance compared to using uniform distribution.
+
+  - To avoid weighting the gradients with $P$, use a biased estimator $r(w)=\frac{\exp(-\mathcal{E}(w))}{Q(w)}$, so the approximation becomes:
+    
+    $$
+    \begin{align*}
+    \mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)] & \approx \sum_{i=1}^{m}\frac{r(\tilde{w}_i)}{\sum_{\tilde{w}_j}r(\tilde{w}_j)}\nabla_\theta\mathcal{E}(\tilde{w}_i) \\
+     & = \frac{1}{\sum_{\tilde{w}_j}r(\tilde{w}_j)}\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}\nabla_\theta\mathcal{E}(\tilde{w}_i) \\
+     & = -\nabla\log\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}
+    \end{align*}
+    $$
+    
+    where $\tilde{w}_i$ are Monte Carlo samples from distribution $Q$, and $m$ is the sample size. Substituting the above back to obtain the formula for $J_w$:
+    
+    $$
+    J_w \approx \mathcal{E}(w) + \log\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}
+    $$
+
+  - This is equivalent when assuming $\sum_{w_j} \exp(-\mathcal{E}(w_j))\approx 1$, which empirically does hold true.
+
+  - Also refer to **<u>Implementation Tips</u>**.
 
 - **Noise contrastive estimation** (NCE):
 
@@ -220,7 +270,7 @@ A beginner in the field of NLP
 
   - But $P_\theta(w\mid c)=\mathrm{softmax}(h^\top v_w)$, which is what we need to estimate. We can replace it by $P_\theta(w\mid c)=\exp(h^\top v_w)/Z(c)$, where $Z(c)$ is trainable. Or simply, let $Z(c)\equiv 1$, giving $P_\theta(w\mid c)=\exp(h^\top v_w)$.
 
-  - **Note**: Performance is poor.
+  - **Note**: Performance is poor?
 
 - **Negative sampling**: 
 
@@ -239,45 +289,109 @@ A beginner in the field of NLP
 
 
 
-## Paper Reading
+## Implementation Details
+
+#### About DyNet
+
+- Transpose (`dy.tranpose`) requires making a copy of the matrix, so does `dy.concatenate_cols` and similar functions.
+
+- `lstm.disable_dropout` does not work, use `lstm.set_dropouts(0, 0)` instead.
+
+- Load parameters of LSTM initial state (as in truncated backprop) by:
+
+  ```python
+  s = [vec.npvalue().reshape(-1, batch_size) for vec in state.s()]
+  # dy.renew_cg()
+  state = self.lstm.initial_state().set_s([dy.inputTensor(vec, batched=True) for vec in s])
+  ```
+
+- Use `dy.affine_transform([b, W, x])` for linear layer with biases, this is more efficient.
+
+- `dy.log_softmax` is more efficient than `dy.log(dy.softmax(x))`, and prevents numerical problems. Similarly, `dy.pickneglogsoftmax` is better than `dy.log_softmax` then `dy.pick`.
+
+- Note the difference between `dy.pick`, `dy.pick_batch` and `dy.pick_batch_elem`.
+
+#### Log-probability Domain
+
+- Addition in log domain is done by the log-sum-exp operation $\ln\sum\exp(x_i)$.
+
+- DyNet has `dy.logsumexp`, and so does Numpy.
+
+- See computation tricks at [https://hips.seas.harvard.edu/blog/2013/01/09/computing-log-sum-exp/](https://hips.seas.harvard.edu/blog/2013/01/09/computing-log-sum-exp/)
+
+#### Importance Sampling
+
+- Samples should include the ground-truth sample $w$. This is done by calculating the expectation of the sampled values, and then applying log-sum-exp with the ground-truth.
+
+- In language models, the same samples are shared across the mini-batch and time steps.
+
+
+
+
+## Models & Structures
 
 #### [Latent predictor networks](https://arxiv.org/pdf/1603.06744.pdf) by W. Ling et al
 
 - When using a normal RNN model, after inference is made, we can backtrack from the final state through to the initial state, resulting in a path
+
 - This is due to that RNNs generated one token at a time, and at each time step samples the next token according to calculated probabilities
+
 - If RNNs can generate multiple tokens in one time step, there may be <u>multiple paths from the initial state to the target state, corresponding to segmentations of the sequence</u>. Path counts can be exponential to its length, and the union of the paths is a directed acyclic graph
+
 - Paper proposes a method to perform <u>joint training on several predictors of different granularity</u>. The method introduced latent variables for deciding which predictor to use, thus giving it the name
+
 - To calculate gradients for a time step, <u>summed products of probabilities on the DAG</u> are required, which can be calculated using a dynamic programming algorithm
+
 - Attention over all different fields in a structured input is used
+
 - Prediction is done using beam search
+
 - The authors utilized this technique in code generation tasks for card games, where a character-level LSTM predictor is jointly trained with pointer networks for copying text directly from card descriptions
+
 - **Relation to project**: If we were to combine results from suffix DS with word- or character-level predictors, we would need such methods to choose which predictor to use
 
 #### Neural lattice language models by Jacob (Graham's grad. student)
 
 - Main idea is similar: enabling LSTM models to <u>generate multiple tokens in one time step</u>
+
 - Exact probability is hard to calculate as LSTMs keep track of whole context seen from the initial state, so each path would have a different state
+
 - Paper evaluated different approaches of probability estimations and different representations of multiple-tokens in one time step *<u>(more details to be described)</u>*
+
   - Ancestral sampling from "latent sequence decompositions": just treat multiword tokens as regular tokens
+
   - TreeLSTM-style summation: summing predecessors' hidden states. Cons: losses probabilistic info
+
   - Weighted expectation: weight summations using prob. dist. learned in ancestral sampling
+
 - **Difference with "<u>latent predictor networks</u>"**:
+
   - Latent predictor networks combine multiple predictor models, while this is one unified model
+
   - The reason why probabilities are easy to calculate in said paper is due to the fact that, although predictors of different granularity are used, <u>all predicted tokens are in the same space, and multiple tokens are fed into the character-level network one-by-one</u>. Hidden states of the char-level network is used in the pointer network in turn. So only O(length) states are required in total
+
 - ~~**<u>An idea:</u>** Can we calculate exact probabilities using method similar to that of latent predictor networks? Possible if all transforms are linear, may be feasible if using Taylor series to approximate non-linearities~~
 
 #### [Pointer Networks](http://papers.nips.cc/paper/5866-pointer-networks.pdf) by O. Vinyals et al
 
 - Output is the set of tokens from input, instead of fixed vocabulary
+
 - Basically a seq2seq model with attention, but use attention weights directly as probability from predicting each input token
+
 - Can be trained to select ordered subsets from input, even accomplish difficult tasks as convex hulls, Delauney triangulation and TSP
+
 - See also: [http://fastml.com/introduction-to-pointer-networks/](http://fastml.com/introduction-to-pointer-networks/)
 
 #### [TreeLSTMs](https://arxiv.org/pdf/1503.00075.pdf) by K. S. Tai, R. Socher, and Christopher D. Manning
 
 - A natural generalization of LSTM to tree structures
+
 - Sum children hidden states as $\tilde{h}$, and replace this as $h$ in formulas for normal LSTMs
+
 - Forget gate is different for each child: use only the hidden state of child to calculate forget gate parameters
+
 - Cell state of parent is as usual, summing over cell states of each child with respective forget gates
+
 - Ordered children version exists: use different parameters for each child (depending on its index). Such model has a limit on the maximum branch factor
+
 - **Benefits**: Can make use of sentence structures generated by parsers; better at preserving state, i.e. can cope better with long distance dependencies (since path lengths are shorter on trees)

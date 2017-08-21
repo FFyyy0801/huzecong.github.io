@@ -287,6 +287,110 @@ A beginner in the field of NLP
   - **Note**: Inappropriate for language modeling, because probabilistic information is lost. Good for representation learning, as in word2vec.
 
 
+#### Locality Sensitive Hashing
+
+- A set of hash functions for approximated nearest neighbor search
+
+- **Hyperplane LSH for cosine similarities**: Draw random vectors from normal distribution. For each stored point, check which side of the plane it is at (the sign of their dot product), and encode such information as a 01-string. Such string is used as the hash signature.
+
+- Results are not good.
+  - For 10k 128-dim points, best point found by LSH ranked ~23 among actual NNs.
+  - This makes it unsuitable for softmax approximations
+
+#### Xavier Initializer & He Initializer
+
+- **Xavier initializer** was proposed by Xavier Glorot, thus also called Glorot initializer *(ref: [[Glorot & Bengio 2010] Understanding the difficulty of training ...](http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf))*
+
+- When applying a linear transform $W$ to vector $\mathbf{x}$, we have $\mathbf{y}=W\mathbf{x}=\sum_{i=1}^{n}W_i\mathbf{x}_i$, where $n$ is the dimensionality (or the number of input neurons to the FC layer)
+
+- Assume the input vector has zero mean, and all elements and parameters are IID, we can calculate the variance of $\mathbf{y}$ as follows:
+  
+  $$
+  \begin{align*}
+  \mathrm{Var}(\mathbf{y}) & = \mathrm{Var}\left(\sum_{i=1}^{n}W_i\mathbf{x}_i\right)=\sum_{i=1}^{n}\mathrm{Var}(W_i\mathbf{x}_i) \\
+   & = \sum_{i=1}^{n}\left(\mathbb{E}[\mathbf{x}_i]^2\mathrm{Var}(W_i) + \mathbb{E}[W_i]^2\mathrm{Var}(\mathbf{x}_i)+\mathrm{Var}(W_i)\mathrm{Var}(\mathbf{x}_i)\right) \\
+   & = n\mathrm{Var}(W_i)\mathrm{Var}(\mathbf{x}_i)
+  \end{align*}
+  $$
+
+- This means the variance is scaled by $n\mathrm{Var}(W_i)$ after the transform. In order to preserve variance, Xavier initializer aims to set the variance of the weights to $\mathrm{Var}(W_i)=\frac{1}{n}=\frac{1}{n_\mathrm{in}}$. If we consider backwards pass, we would find that we need $\mathrm{Var}(W_i)=\frac{1}{n_\mathrm{out}}$, so as a compromise, variance is set to:
+  
+  $$
+  \mathrm{Var}(W_i)=\frac{2}{n_\mathrm{in}+n_\mathrm{out}}
+  $$
+  
+  where $n_\mathrm{in}$ and $n_\mathrm{out}$ corresponds to the dimensions $n$ and $m$ of the transform matrix.
+
+- To obtain such variance, consider a uniform distribution $U[-x,x]$ whose variance is $\mathrm{Var}(U)=\frac{x^2}{3}$. Solving the equation gives us
+  
+  $$
+  W\sim U\Bigg[-\frac{1}{f'(0)}\sqrt{\frac{6}{n+m}},\frac{1}{f'(0)}\sqrt{\frac{6}{n+m}}\Bigg]
+  $$
+  
+  where $f$ is the nonlinearity after the transform.
+
+- **He initializer** was proposed by Kaiming He et al. It simply multiplies the Xavier initializer variance by 2. This is useful for ReLU nonlinearities, whose derivative is undefined at 0. This also makes sense in ReLU's derivative is 0 half the time and 1 for the other half. *(ref: [[He 2015] Delving Deep into Rectifiers...](https://arxiv.org/pdf/1502.01852))*
+
+- Ref to: [http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization](http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization)
+
+
+
+
+## Theory & Proofs
+
+#### On Gradient Vanishing/Exploding of RNNs
+
+- *(ref: [[Zilly 2016] Recurrent Highway Networks](https://arxiv.org/pdf/1607.03474), chapter 2)*
+
+A vanilla RNN can be described as
+
+$$
+y^{(t)}=f\left(Wx^{(t)}+Ry^{(t-1)}+b\right)
+$$
+
+For simplicity, suppose the loss is defined on the last state only, i.e. $\mathcal{L}=g\left(y^{(T)}\right)$. The gradient w.r.t. parameters would be
+
+$$
+\frac{\d\mathcal{L}}{\d\theta}=\frac{\d\mathcal{L}}{\d y^{(T)}}\frac{\d y^{(T)}}{\d \theta}=\frac{\d\mathcal{L}}{\d y^{(T)}}\sum_{t_1=1}^{T}\frac{\d y^{(T)}}{\d y^{(t_1)}}\left(\frac{\d y^{(t_1)}}{\d W}+\frac{\d y^{(t_1)}}{\d b}\right)
+$$
+
+In the formula above, the gradient is expanded using the chain rule, and then expanded along the time axis. We further expand the Jacobian $\frac{\d y^{(T)}}{\d y^{(t_1)}}$:
+
+$$
+\frac{\d y^{(T)}}{\d y^{(t_1)}}=\prod_{t_1<t\leq T}\frac{\d y^{(t)}}{\d y^{(t-1)}}=\prod_{t_1<t\leq T}R\cdot\mathrm{diag}\left[f'\left(Ry^{(t-1)}\right)\right]
+$$
+
+Denoting $A=\frac{\d y^{(t)}}{\d y^{(t-1)}}$ as the temporal Jacobian, the upper bound for its norm would be
+
+$$
+\Vert A\Vert\leq \Vert R\Vert \left\Vert f'\left(Ry^{(t-1)}\right)\right\Vert\leq \sigma_\max\cdot\gamma
+$$
+
+where $\sigma_\max$ is the principal singular value of $A$, and $\gamma$ is the upper bound on $f'$.
+
+As the temporal Jacobian is multiplied together, which is approximately equivalent to $A$ raised to the $T$-th power. So the conditions for vanishing/exploding gradients are:
+
+- **Vanishing gradients**: $\gamma\sigma_\max<1$
+
+- **Exploding gradients**: $\rho(A)=\sigma_\max>1$
+
+**Comparing to MLPs**: The reason deep CNNs/MLPs do not suffer less from gradient vanishing/exploding as RNNs do, is because MLPs use different matrices at different layers, while RNNs use the same matrix in every time step.
+
+#### On the Effectiveness of LSTMs
+
+- *(ref: [[Jozefowicz 2015] An Empirical Exploration of RNN structures](http://proceedings.mlr.press/v37/jozefowicz15.pdf), chapter 2)*
+
+In their simplest forms, the RNN calculates the new state $h^{(t)}$ by $h^{(t)}=f(Wh^{(t-1)})$, while the LSTM (without forget gates) calculates the new state by $c^{(t)}=c^{(t-1)}+i_\mathrm{g}^{(t)}f(Wc^{(t-1)})$, $h^{(t)}=o_\mathrm{g}^{(t)}c^{(t)}$.
+
+The temporal Jacobian here would be
+
+$$
+\frac{\d c^{(t)}}{\d c^{(t-1)}}=1
+$$
+
+Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ times the transformation $f$, while LSTMs calculate the increment at each time step and sums them up.
+
+
 
 
 ## Implementation Details

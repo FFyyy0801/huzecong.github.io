@@ -15,7 +15,7 @@ plugins:
 
 name: huzecong_blog
 
-permalink: pretty
+# permalink: pretty
 
 title: Hu Zecong's blog
 author: Hu Zecong
@@ -38,7 +38,7 @@ defaults:
     values:
       image: true
 
-#permalink: /:year/:month/:day/:title/
+permalink: /:year/:month/:day/:title/
 
 # Explicitly turn off the old code
 paginate: nil

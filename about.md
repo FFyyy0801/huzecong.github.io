@@ -6,7 +6,7 @@ permalink: /about/
 layout: page
 ---
 
-### me
+## me
 
 Hu Zecong (Chinese: 胡泽聪)
 - Senior student @ Tsinghua University
@@ -15,7 +15,7 @@ Hu Zecong (Chinese: 胡泽聪)
 - **Awards:** Gold medalist @ NOI2013, ACM/ICPC 2014 Asia Regionals
 - **Area of interest:** Natural Language Processing
 
-### this blog
+## this blog
 
 - diaries (mainly per-semester reviews of college life; in Chinese)
 - tech blogs & research notes

@@ -4,7 +4,7 @@ title:  "Codeforces Round #391"
 date:   2017-01-14 13:43:00 +0800
 categories: solution
 lang: zh-CN
-use_math: true
+mathjax: true
 ---
 
 转眼之间已经到了大三，距退役已经三年了。考完期末考试，正好有一场CF，抱着做康复训练的心态参加了比赛。

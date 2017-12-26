@@ -3,7 +3,7 @@ layout: post
 title:  "Research Notes"
 date:   2017-08-06 21:53:05 -0400
 categories: notes
-use_math: true
+mathjax: true
 lang: en
 ---
 

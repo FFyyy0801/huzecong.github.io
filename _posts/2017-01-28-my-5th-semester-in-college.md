@@ -3,7 +3,7 @@ layout: post
 title:  "大三上总结"
 date:   2017-01-28 22:24:00 +0800
 categories: diary
-lang: zh-CN
+locale: zh-CN
 ---
 
 转眼间又一个学期过去了。传闻中最可怕的一个学期也就这样平安无事地度过了。大学的生活也已经过半了。

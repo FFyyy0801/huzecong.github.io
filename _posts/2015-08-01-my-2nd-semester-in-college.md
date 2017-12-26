@@ -3,7 +3,7 @@ layout: post
 title:  "大一下总结"
 date:   2015-08-01 10:02:00 +0800
 categories: diary
-lang: zh-CN
+locale: zh-CN
 ---
 
 

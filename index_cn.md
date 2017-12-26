@@ -6,6 +6,5 @@ permalink: /index_cn/
 layout: home
 pagination: 
   enabled: true
-filter:
-  - by_expression: post.lang == "zh-CN"
+  locale: zh-CN
 ---

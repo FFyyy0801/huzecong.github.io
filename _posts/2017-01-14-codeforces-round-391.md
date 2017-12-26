@@ -3,7 +3,7 @@ layout: post
 title:  "Codeforces Round #391"
 date:   2017-01-14 13:43:00 +0800
 categories: solution
-lang: zh-CN
+locale: zh-CN
 mathjax: true
 ---
 

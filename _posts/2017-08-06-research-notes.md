@@ -4,7 +4,7 @@ title:  "Research Notes"
 date:   2017-08-06 21:53:05 -0400
 categories: notes
 mathjax: true
-lang: en
+locale: en
 ---
 
 This post records my notes taken during summer internship @ CMU LTI. 

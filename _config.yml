@@ -1,18 +1,22 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+exclude:
+  - .travis.yml
+  - bin/*
+  - circle.yml
+  - Gemfile
+  - Gemfile.lock
+  - package.json
+  - README.md
+  - yarn.lock
+  - vendor/
 
-# Site settings
-# These are used to personalize your new site. If you look in the HTML files,
-# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
-# You can create any custom variable you would like, and they will be accessible
-# in the templates via {{ site.myvariable }}.
+plugins:
+  - jekyll-sitemap
+  - jekyll-paginate-v2
+
+name: huzecong_blog
+
+permalink: pretty
+
 title: Hu Zecong's blog
 author: Hu Zecong
 email: huzecong@gmail.com
@@ -22,18 +26,11 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://huzecong.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: huzecong
 disqus_shortname: huzecong-blog
+# theme: jekyll-theme-kagami
 
 # Build settings
 markdown: kramdown
 excerpt_separator: "<!--more-->"
-
-gems:
-  - jekyll-feed
-  - jekyll-archives
-  - jekyll-paginate-v2
-  - jekyll-sitemap
-
-destination: ".."
 
 defaults:
   - scope:
@@ -41,7 +38,7 @@ defaults:
     values:
       image: true
 
-permalink: /:year/:month/:day/:title/
+#permalink: /:year/:month/:day/:title/
 
 # Explicitly turn off the old code
 paginate: nil
@@ -51,8 +48,8 @@ pagination:
   enabled: true
   collection: 'posts'
   per_page: 5
-  permalink: '/page/:num/'
-  title: ':title - page :num'
+  permalink: '/page/:num'
+  title: ':title'
   sort_field: 'date'
   sort_reverse: true
   trail: 
@@ -60,24 +57,4 @@ pagination:
     after: 2
   # indexpage: 'index'
 
-jekyll-archives:
-  enabled:
-    - categories
-    - year
-  layout: category_archives
-  permalinks:
-    category: /category/:name/
-
 google_analytics: UA-48327586-2
-
-# Exclude from processing.
-# The following items will not be processed, by default. Create a custom list
-# to override the default setting.
-# exclude:
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/

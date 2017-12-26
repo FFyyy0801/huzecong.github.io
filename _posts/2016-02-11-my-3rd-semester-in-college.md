@@ -3,7 +3,7 @@ layout: post
 title:  "大二上总结"
 date:   2016-02-11 12:01:00 +0800
 categories: diary
-lang: zh-CN
+locale: zh-CN
 ---
 
 

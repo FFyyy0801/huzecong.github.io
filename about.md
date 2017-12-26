@@ -3,6 +3,7 @@ navlevel: header
 navtitle: About
 title: "About"
 permalink: /about/
+layout: page
 ---
 
 ### me

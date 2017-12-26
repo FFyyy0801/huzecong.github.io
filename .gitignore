@@ -1,4 +1,16 @@
-_site
-.sass-cache
-.jekyll-metadata
-vendor
+# Global
+*.DS_Store
+Desktop.ini
+Thumbs.db
+
+# Ruby
+vendor/
+
+# Project
+!.keep
+*.sass-cache
+/_assets/yarn/
+/_site/
+/.jekyll-cache/
+Gemfile.lock
+yarn.lock

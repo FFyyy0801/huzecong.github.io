@@ -3,7 +3,7 @@ layout: post
 title:  "软工实记"
 date:   2016-02-04 19:47:00 +0800
 categories: diary
-locale: zh-CN
+locale: zh-Hans
 ---
 
 

@@ -47,7 +47,7 @@ layout: default
       {% capture lang %}{{ post.lang | default: post.locale | default: site.lang | default: "en" }}{% endcapture %}
       {% if lang == "en" %}
         {% capture words %}{{ post.content | strip_html | number_of_words  }}{% endcapture %}
-      {% elsif lang == "zh-CN" %}
+      {% elsif lang contains "zh" %}
         {% capture words %}{{ post.content | strip_html | size | divided_by: 2 }}{% endcapture %}
       {% else %}
         {% capture words %}{{ post.content | strip_html | size }}{% endcapture %}

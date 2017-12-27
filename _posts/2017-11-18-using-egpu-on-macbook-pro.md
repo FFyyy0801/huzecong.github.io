@@ -3,8 +3,8 @@ layout: post
 title:  "在MacBook Pro上配置使用外置显卡"
 date:   2017-11-18 13:42:05 -0400
 categories: guide
+locale: zh-Hans
 mathjax: true
-locale: zh-CN
 ---
 
 在听说macOS High Sierra官方支持eGPU之后，便一直想买一块显卡，以弥补我用Mac 5年以来没怎么玩过大型3D游戏的遗憾，顺带炼一炼丹。趁着双十一这个借口，狠下心来买了一个eGPU盒子和一块1080Ti。

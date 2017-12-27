@@ -15,15 +15,9 @@ Note: This is a non-mobile-friendly post, mobile view is distorted due to formul
 
 <!--more-->
 
-## About Me
-
-Senior student @ Dept. of Computer Science and Technology, Tsinghua University
-
-Visiting intern @ CMU LTI
-
-A beginner in the field of NLP
-
-
+$$
+\renewcommand{\d}{\ \mathrm{d}}
+$$
 
 ## Tips in Training
 
@@ -59,33 +53,41 @@ A beginner in the field of NLP
 - **Triplet loss**: *<u>(more details to be described)</u>*
 
 
-#### Gumbel-max trick
+#### Gumbel-max trick & Gumbel-Softmax distribution
 
 - **Gumbel distribution** (unit scale, zero location, $x\in(-\infty,+\infty)$):
+
   - **PDF**: $f(x) = \exp(-x-\exp(-x))$
   - **CDF**: $F(x) = \exp(-\exp(-x))$
   - Property: If $U\sim \mathrm{Uniform}[0,1]$, then $-\log(-\log U)\sim \mathrm{Gumbel}(0,1)$
 
 - Softmax for $\{x_k\}$ is equivalent to: adding independent Gumbel noise and take argmax
 
-- Proof: Let $z_k = x_k + y_k,\ \{y_k\}\stackrel{\mathrm{i.i.d.}}{\sim}\mathrm{Gumbel}(0,1)$, then $P(z_k\text{ is max}) = \prod_{j\neq k} F(z_k-x_j)$.
-
+- **Proof**: Let $z_k = x_k + y_k,\ \{y_k\}\stackrel{\mathrm{i.i.d.}}{\sim}\mathrm{Gumbel}(0,1)$, then $P(z_k\text{ is max}) = \prod_{j\neq k} F(z_k-x_j)$.
   $$
-  \renewcommand{\d}{\ \mathrm{d}}
   \begin{align*}
   P(k\text{ is selected}) &= \int_{-\infty}^{+\infty}f(z_k-x_k)P(z_k\text{ is max})\d{z_k} \\
-  &= \int \exp\left(-z_k+x_k-\exp(-z_k)\sum_{j=1}^{K}\exp(x_k)\right)\d{z_k} \\
-  &= \frac{\exp(x_k)}{\sum_{j=1}^{K}\exp(x_j)}=\mathrm{softmax}\left(\{x_k\}\right)^{(k)}
+  &= \int_{-\infty}^{+\infty} \exp\left(-z_k+x_k-\exp(-z_k)\sum_{j=1}^{K}\exp(x_k)\right)\d{z_k} \\
+  &\stackrel{\text{magic}}{=} \frac{\exp(x_k)}{\sum_{j=1}^{K}\exp(x_j)}=\mathrm{softmax}\left(\{x_k\}\right)^{(k)}
   \end{align*}
   $$
+  where the "magic" step somehow calculates the closed-form solution of the above integration.
 
 - See also: <https://hips.seas.harvard.edu/blog/2013/04/06/the-gumbel-max-trick-for-discrete-distributions/>
 
-- **Usage**: *<u>(more details to be described)</u>*
+- **Usage**: Replace sampling from distribution $P(x)=\pi_x$ with argmax operation:
+  $$
+  z=\underset{i}{\arg\max}(g_i+\log\pi_i)\sim P
+  $$
+  where $g_i$ are independent samples from uniform Gumbel distribution.
 
-#### Gaussian reparameterization trick
+- **Gumbel-Softmax distribution**: Softmax with temperature $\tau$ applied over Gumbel-max:
+  $$
+  \mathbf{y}=\mathrm{softmax}((\log\pmb{\pi}+\mathbf{g})/\tau)
+  $$
+  For lower temperatures, Gumbel-Softmax distribution is close to the one-hot distribution of the argmax element (which is the sample given by Gumbel-max trick); for higher temperatures, distribution is close to uniform. *(ref: [[Jang et al. 2016] Categorical Reparameterization with Gumbel-Softmax](https://arxiv.org/pdf/1611.01144))*
 
-- *<u>(more details to be described)</u>*
+  - This is useful when we need a differentiable sample over a discrete distribution. For sample over continuous distributions, we have the [reparameterization trick](#how-do-we-compute-the-lower-bound).
 
 #### Exposure bias and scheduled sampling
 
@@ -99,6 +101,8 @@ A beginner in the field of NLP
 - **Drawbacks of scheduled sampling**: When previous label was used, we were using the result of argmax of the softmax at previous time step as input, and naturally we would like to back propagate through such calculations. However, argmax is non-differentiable.
 
   The reason back propagating through argmax is desirable is that, the actual cause for predicting a wrong label at the current time step may be that wrong predictions were made at previous time steps (cascading error).
+
+- **Other caveats**: see [A Word of Caution on Scheduled Sampling for Training RNNs](http://www.inference.vc/scheduled-sampling-for-rnns-scoring-rule-interpretation/).
 
 - **Soft argmax and differentiable scheduled sampling** *(ref: [[Goyal, Dyer 2017] Differentiable Scheduled Sampling for Credit Assignment](https://arxiv.org/pdf/1704.06970.pdf))*: *<u>(more details to be described)</u>*
 
@@ -168,14 +172,14 @@ A beginner in the field of NLP
   J_w=-\log\frac{\exp(h^\top v_{w})}{\sum_{w_i}\exp(h^\top v_{w_i})}=-h^\top v_w+\log\sum_{w_i}\exp(h^\top v_{w_i})
   $$
 
-  where $v_w$ is the output embedding. Denoting $\mathcal{E}(w)=-h^\top v_{w}$, taking gradients w.r.t. parameters would give:
+  where $v_w$ is the output embedding. Denoting $\mathcal{E}(w)=h^\top v_{w}$, taking gradients w.r.t. parameters would give:
 
   $$
   \begin{align*}
-  \nabla_\theta J_w & = \nabla_\theta \mathcal{E}(w)+\nabla_\theta \log\sum_{w_i}\exp(-\mathcal{E}(w_i)) \\
-  & = \nabla_\theta\mathcal{E}(w)-\sum_{w_i}\frac{\exp(-\mathcal{E}(w_i))}{\sum_{w_i'}\exp(-\mathcal{E}(w_i'))}\nabla_\theta\mathcal{E}(w_i) \\
-  & = \nabla_\theta\mathcal{E}(w)-\sum_{w_i}P(w_i)\nabla_\theta\mathcal{E}(w_i) \\
-  & = \nabla_\theta\mathcal{E}(w) - \mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)]
+  \nabla_\theta J_w & = -\nabla_\theta \mathcal{E}(w)+\nabla_\theta \log\sum_{w_i}\exp(\mathcal{E}(w_i)) \\
+  & = -\nabla_\theta\mathcal{E}(w)+\sum_{w_i}\frac{\exp(\mathcal{E}(w_i))}{\sum_{w_i'}\exp(\mathcal{E}(w_i'))}\nabla_\theta\mathcal{E}(w_i) \\
+  & = -\nabla_\theta\mathcal{E}(w)+\sum_{w_i}P(w_i)\nabla_\theta\mathcal{E}(w_i) \\
+  & = -\nabla_\theta\mathcal{E}(w)+\mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)]
   \end{align*}
   $$
 
@@ -183,7 +187,7 @@ A beginner in the field of NLP
 
   Sampling methods reduce computational complexity by approximating the expected term.
 
-- **Importance sampling**
+##### Importance sampling
 
   - Expectation can be calculated using Monte Carlo methods: average of samples multiplied by its probability.
 
@@ -203,29 +207,49 @@ A beginner in the field of NLP
     
     When $Q$ is similar to $P$, doing Monte Carlo integration w.r.t. $Q$ can decrease variance compared to using uniform distribution.
 
-  - To avoid weighting the gradients with $P$, use a biased estimator $r(w)=\frac{\exp(-\mathcal{E}(w))}{Q(w)}$, so the approximation becomes:
-    
-    $$
-    \begin{align*}
-    \mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)] & \approx \sum_{i=1}^{m}\frac{r(\tilde{w}_i)}{\sum_{\tilde{w}_j}r(\tilde{w}_j)}\nabla_\theta\mathcal{E}(\tilde{w}_i) \\
-     & = \frac{1}{\sum_{\tilde{w}_j}r(\tilde{w}_j)}\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}\nabla_\theta\mathcal{E}(\tilde{w}_i) \\
-     & = -\nabla\log\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}
-    \end{align*}
-    $$
-    
-    where $\tilde{w}_i$ are Monte Carlo samples from distribution $Q$, and $m$ is the sample size. Substituting the above back to obtain the formula for $J_w$:
+  - To avoid weighting the gradients with $P$, we need to approximate $P$ as well. Denote $P(w)=\frac{\tilde{p}(w)}{Z_p}$, where $Z_p$ is the partition function, and $\tilde{p}(w)=\exp(\mathcal{E}(w))$ is the unnormalized probability of distribution $P$. We can rewrite the expectation as:
 
     $$
-    J_w \approx \mathcal{E}(w) + \log\sum_{i=1}^{m}\frac{\exp(-\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}=\mathcal{E}(w) + \log\sum_{i=1}^{m}\exp(-\mathcal{E}(\tilde{w}_i)-\log Q(\tilde{w}_i))
+    \begin{align*}
+    \mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)] & = \mathbb{E}_{\tilde{w}_i\sim Q}\left[\frac{P(\tilde{w})}{Q(\tilde{w}_i)}\nabla_\theta\mathcal{E}(w_i)\right] \\
+     & \approx \frac{1}{m}\sum_{i=1}^{m}\frac{P(\tilde{w}_i)}{Q(\tilde{w}_i)}\nabla_\theta\mathcal{E}(\tilde{w}_i) \\
+     & = \frac{Z_q}{Z_p}\frac{1}{m}\sum_{i=1}^{m}\frac{\tilde{p}(\tilde{w}_i)}{\tilde{q}(\tilde{w}_i)}\nabla_\theta\mathcal{E}(\tilde{w}_i)
+    \end{align*}
+    $$
+
+    where $\tilde{w}_i$ are $m$ samples from distribution $Q$ used in a Monte Carlo estimator. We can apply the same technique in approximating the partition function:
+
+    $$
+    \begin{align*}
+    \frac{Z_p}{Z_q} & =\frac{1}{Z_q}\sum_{w}\tilde{p}(w) \\
+     & = \sum_w \frac{Q(w)}{\tilde{q}(w)}\tilde{p}(w) \\
+     & = \mathbb{E}_{w\sim Q}\left[\frac{\tilde{p}(w)}{\tilde{q}(w)}\right] \approx \frac{1}{m}\sum_{i=1}^{m} \frac{\tilde{p}(\tilde{w}_i)}{\tilde{q}(\tilde{w}_i)}
+    \end{align*}
+    $$
+
+  - Combining the above formulae gives us an unbiased estimator of the expectation:
+
+    $$
+    \begin{align*}
+    \mathbb{E}_{w_i\sim P}[\nabla_\theta\mathcal{E}(w_i)] & \approx \sum_{i=1}^{m}\frac{\tilde{p}(\tilde{w}_i)/Q(\tilde{w}_i)}{\sum_k \tilde{p}(\tilde{w}_k)/Q(\tilde{w}_k)} \nabla_\theta\mathcal{E}(\tilde{w}_i) \\
+     & = \sum_{i=1}^{m}\frac{\exp(\mathcal{E}(\tilde{w}_i))/Q(\tilde{w}_i)}{\sum_k \exp(\mathcal{E}(\tilde{w}_k))/Q(\tilde{w}_k)} \nabla_\theta\mathcal{E}(\tilde{w}_i) \\
+     & = \nabla\log\sum_{i=1}^{m}\frac{\exp(\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}
+    \end{align*}
+    $$
+
+    which gives us our actual objective:
+
+    $$
+    J_w \approx -\mathcal{E}(w) + \log\sum_{i=1}^{m}\frac{\exp(\mathcal{E}(\tilde{w}_i))}{Q(\tilde{w}_i)}=-\mathcal{E}(w) + \log\sum_{i=1}^{m}\exp(\mathcal{E}(\tilde{w}_i)-\log Q(\tilde{w}_i))
     $$
 
     The latter form is numerically more stable, and the log-sum-exp trick could be applied.
 
-  - This is equivalent when assuming $\sum_{w_j} \exp(-\mathcal{E}(w_j))\approx 1$, which empirically does hold true.
+  - Note that the new objective is also an approximation of the original one. We can see the denominator of softmax as an expectation w.r.t. a uniform distribution, and here we're approximating it with distribution $Q$. But anyway, this is not very accurate, for evaluation, a full softmax is still required.
 
-  - Also refer to [Implementation Details](#importance-sampling)
+  - Also refer to [**Implementation Details**](#implementation-details). See also *Pattern Recognition and Machine Learning* Ch. 11.1.4.
 
-- **Noise contrastive estimation (NCE)**
+##### Noise contrastive estimation (NCE)
 
   - Ref to: <https://datascience.stackexchange.com/questions/13216/intuitive-explanation-of-noise-contrastive-estimation-nce-loss> and <https://arxiv.org/pdf/1410.8251.pdf>
 
@@ -274,7 +298,7 @@ A beginner in the field of NLP
 
   - **Note**: Performance is poor?
 
-- **Negative sampling**
+##### Negative sampling
 
   - An approximation to NCE, by setting the most expensive term $k\cdot Q(w)\equiv1$, giving:
 
@@ -335,7 +359,19 @@ A beginner in the field of NLP
 
 - Ref to: <http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization>
 
+#### Tuning on the Development Set
 
+- **Early-stopping**: When results does not get better on the dev set, simply stop training. Usually there's a threshold (or **patience**) as to how many epochs with worse results are tolerated.
+
+- **Rollback**: When results does not get better, simply load the best previous model and decay the learning rate. Best models as usually saved to disk.
+
+- **Rollback Optimizer**: Regarding the optimizer (we're only concerned about the optimizer statistics, e.g. parameter momentum, but not the hyper-params e.g. learning rate), 3 strategies are possible:
+
+  1. Load the optimizer at the time of the best model snapshot. This requires saving the optimizer state as well.
+  2. Reset optimizer statistics. For common optimizers this mean zeroing momentum and moments.
+  3. Use the current optimizer as-is. The current optimizer has statistics for the worse dev performance part of training.
+
+  Usually the effectiveness of the 3 methods are in order of their numbering. However method 2 has the benefit of being able to escape out of local minima as the initial step would be a large step.
 
 
 ## Theory & Proofs
@@ -427,11 +463,13 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
 
 #### Importance Sampling
 
-- In some cases, you may want to include the ground-truth $w$ in your samples (denominator). This is done by calculating the expectation of the sampled values, and then applying log-sum-exp with the ground-truth.
+- There's a chance that the ground-truth $w$ is not included in the approximation of the denominator. This could lead to a negative which is bad for optimization.
 
-  - But this is not always the case. Refer to comment in the reference link in [Softmax Approximations by Sampling](#softmax-approximations-by-sampling). Also refer to [`tf.nn.sampled_softmax_loss`](https://www.tensorflow.org/api_docs/python/tf/nn/sampled_softmax_loss).
+- For a biased solution, we can simply include all targets in the samples. Although effective, this leads to a biased estimator, and deprives the loss of its probabilistic information (it cannot be used to evaluate perplexity).
 
-- In language models, the same samples are shared across the mini-batch and time steps.
+- For an unbiased solution, we can modify the proposal distribution to bias towards to targets. What differs from the above solution is that we still *sample* from the distribution, rather than forcibly modifying the samples.
+
+- For efficient calculation, we can use the same samples are shared across the mini-batch and time steps. *(ref: [[Jozefowicz et al. 2016] Exploring the Limits of Language Modeling][https://arxiv.org/pdf/1602.02410])*
 
 
 
@@ -456,8 +494,6 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
 
 - The authors utilized this technique in code generation tasks for card games, where a character-level LSTM predictor is jointly trained with pointer networks for copying text directly from card descriptions
 
-- **Relation to project**: If we were to combine results from suffix DS with word- or character-level predictors, we would need such methods to choose which predictor to use
-
 #### <u>Neural lattice language models</u> by Jacob (Graham's grad. student)
 
 - Main idea is similar: enabling LSTM models to <u>generate multiple tokens in one time step</u>
@@ -477,8 +513,6 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
   - Latent predictor networks combine multiple predictor models, while this is one unified model
 
   - The reason why probabilities are easy to calculate in said paper is due to the fact that, although predictors of different granularity are used, <u>all predicted tokens are in the same space, and multiple tokens are fed into the character-level network one-by-one</u>. Hidden states of the char-level network is used in the pointer network in turn. So only O(length) states are required in total
-
-- ~~**<u>An idea:</u>** Can we calculate exact probabilities using method similar to that of latent predictor networks? Possible if all transforms are linear, may be feasible if using Taylor series to approximate non-linearities~~
 
 #### [Pointer Networks](https://arxiv.org/pdf/1506.03134) by O. Vinyals et al
 
@@ -586,7 +620,7 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
 
 - Vectors learnt by the two methods are concatenated for use in downstream tasks.
 
-#### [C2W](www.cs.cmu.edu/~lingwang/papers/emnlp2015.pdf) (character to word) by W. Ling et al
+#### [C2W](http://www.cs.cmu.edu/~lingwang/papers/emnlp2015.pdf) (character to word) by W. Ling et al
 
 - Generate word representations by running a char-level Bi-LSTM.
 
@@ -631,10 +665,16 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
 #### Task Description
 
 - Generate a tree structure over a sentence, describing dependency of words.
-
 - A directed tree, with a label for each edge, denoting the type of dependency.
+- There can be multiple roots for a single sentence, especially when the sentence is conjoined by conjunctions (e.g. "and").
 
-- **Arc-factored graph-based methods**: Assign likelihood for each ordered pair of nodes, and for each label type. Run Chu-Liu-Edmonds' algorithm for maximum spanning arborescence.
+#### Methods
+
+- Methods can be basically categorized into one of the two:
+
+- **Transition-based methods**: Shift-reduce parsers that acts like a pushdown automata, at each time step the model can choose to either SHIFT (push word to stack), or REDUCE (pop the top two words from stack, assign one of the as the parent of the other, and push the parent back into the stack). More complicated models support other actions. These methods often make local decisions, and use greedy decoding.
+
+- **Arc-factored graph-based methods**: Assign likelihood for each ordered pair of nodes, and for each label type. Run Chu-Liu-Edmonds' algorithm for maximum spanning arborescence. These methods usually make global decisions.
 
 #### [Deep Biaffine Attention](https://arxiv.org/pdf/1611.01734) by T. Dozat & Manning
 
@@ -680,3 +720,144 @@ Or to put simply, to obtain the state at time step $t$, RNNs would apply $t$ tim
 - Needs to run Chu-Liu's algorithm during prediction. Select argmax type for each predicted edge.
 
 - When the formulae are expanded, they take the same form as the [Tensor Indexing Model](#tensor-indexing-model-by-y-zhao--zhiyuan-liu)
+
+
+## Topic: Variational Auto-encoder
+
+#### Formulation of VAE
+
+- Ref to: [Tutorial on Variational Autoencoders](https://arxiv.org/pdf/1606.05908)
+
+##### The first formula
+
+- To build a generative model, we need to approximate the distribution $P(X)$ where $X$ is our data (things to generate).
+
+- An intuitive method is to first extract features $\mathbf{z}$ from $X$'s, and use a model parameterized by $\theta$ to recover $X$ given $\mathbf{z}$.
+
+- The features $\mathbf{z}$ are called **latent variables** (means "hidden") because they're not *observed* but *inferred*.
+
+- Following the law of total probability, we have
+
+  $$
+  P(X) = \int P_\lambda(\mathbf{z}) P_\theta(X\mid\mathbf{z})\d\mathbf{z} = \mathbb{E}_{\mathbf{z}\sim P_\lambda}[P_\theta(X\mid\mathbf{z})]
+  $$
+
+  where $P_\lambda(\mathbf{z})$ is our **prior** knowledge of the space of latent variables, and $P_\theta(X\mid\mathbf{z})$ if the likelihood approximated by our model, parameterized by $\theta$. In modern context, $\theta$ can be seen as the **decoder**.
+
+- Naturally, our objective would be to maximize the expectation of the marginal log-probability over the data distribution, $\mathbb{E}_{X\sim D}[\log P(X)]$. This is a form of maximum likelihood estimation (MLE).
+
+##### Simplify calculations: Introducing posterior
+
+- But such integration is intractable for three reasons:
+
+  - The space of $\mathbf{z}$ is large.
+  - Monte Carlo sampling would not be effective because $P_\theta(X\mid\mathbf{z})$ is likely to be zero for most $\mathbf{z}$'s.
+  - We want to run optimization in mini-batches. Consider maximizing the objective w.r.t. a single data example $X$, we're effectively increasing the probability of $X$ given any latent $\mathbf{z}$. This is clearly counter-intuitive.
+
+- From the second reason, it is natural to consider using **importance sampling** to speed up sampling procedure. Thus we introduce a distribution $Q_\phi(\mathbf{z}\mid X)$, which gives high probability to latent $\mathbf{z}$'s that would in turn give high probability to the example $X$. This is the **posterior** distribution matching its prior. In modern context, $\phi$ can be seen as the **encoder**.
+
+- With the posterior in mind, we can rewrite the objective
+
+  $$
+  P(X) = \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}\left[ \frac{P_\lambda(\mathbf{z})P_\theta(X\mid\mathbf{z})}{Q_\phi(\mathbf{z}\mid X)} \right]
+  $$
+
+##### Simplify calculations: Log-probability domain & KL-divergence
+
+- To match our objective, we try transform everything into the log-probability domain. But the logarithm function cannot be moved inside the expectation.
+
+- However, **Jensen's inequality** states that for any convex function $f$ and random variable $X$, we have $f(\mathbb{E}[X]) \leq \mathbb{E}[f(x)]$. For concave functions like $\log$, the opposite conclusion holds. Thus we derive a lower bound on $\log P(X)$:
+
+  $$
+  \begin{align*}
+  \log P(X) & \geq \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}\left[ \log\frac{P_\lambda(\mathbf{z})P_\theta(X\mid\mathbf{z})}{Q_\phi(\mathbf{z}\mid X)} \right] \\
+   & \geq \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}\left[ \log P_\lambda(\mathbf{z}) + \log P_\theta(X\mid\mathbf{z}) - \log Q_\phi(\mathbf{z}\mid X) \right]
+  \end{align*}
+  $$
+
+- Observe that the above formulation can be rewritten as
+
+  $$
+  \log P(X) \geq \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}[\log P_\theta(X\mid \mathbf{z})] - \mathrm{KL}(Q_\phi(\mathbf{z}\mid X)\Vert P_\lambda(\mathbf{z}))
+  $$
+
+  where the second term is the KL-divergence given by $\mathrm{KL}(q\Vert p) = H(p,q)-H(q)$, the difference of cross-entropy and entropy.
+
+  The RHS is also known as **Evidence Lower Bound** (ELBO) $\mathcal{L}(X;\phi,\theta,\lambda)$.
+
+- The lower bound can be interpreted as:
+
+  - Maximizing the likelihood w.r.t. the posterior of latent $\mathbf{z}$ given the trained example $X$, and
+  - Regularizing the posterior distribution by pulling it close to the prior.
+
+##### How do we compute the lower bound?
+
+- We should first define the form for our prior and posterior. A common choice is to use a Gaussian distribution (or a mixture of Gaussians). There are two reasons for this:
+
+  - For the prior, an univariate Gaussian distribution defined on $\mathbb{R}$ is able to represent any distribution by composing the inverse CDF of the desired distribution with the CDF of a Gaussian. This also holds true for multiple dimensions. So we can trust our decoder to learn this mapping, which shouldn't be too difficult for neural network models.
+  - For the posterior, using a Gaussian distribution means that we only have to specify the mean $\mu$ and variance $\sigma^2$. Also, such settings gives an analytical solution to the KL-divergence term.
+
+- For the first term, given the assumption that $Q_\phi$ is able to produce a nice estimate of the posterior, we can safely use Monte Carlo sampling, i.e. sample $\mathbf{z}$ from distribution $Q_\phi$, and optimize for $\log P_\theta(X\mid\mathbf{z})$.
+
+  - However, in terms of SGD, this is not acceptable, because "sampling" is indifferentiable.
+    - To see why this is true, note that for the term we backprop w.r.t. the negative log likelihood, which is dependent only on $\mathbf{z}$.
+    - However, $\mathbf{z}$ is sampled from $Q_\phi$, but it is introduced into $P_\theta$ as "input", which has no gradient. So the gradient is cannot be backpropped through the sampling procedure.
+  - So a re-parameterization trick must be applied: since $Q_\phi$ is Gaussian $\mathcal{N}(\mu,\sigma^2)$, sampling $z\sim \mathcal{N}(\mu,\sigma^2)$ is equivalent to sampling $\epsilon\sim\mathcal{N}(0,1)$ and compute $z=\mu + \sigma\cdot\epsilon$. Thus gradient is able to flow through the encoder. *(ref: [[Kingma & Welling 2013] Autoencoding Variational Bayes](https://arxiv.org/pdf/1312.6114))*
+
+- For the second term, given Gaussians $P(\mathbf{z})=\mathcal{N}(0,I)$ and $Q_\phi(\mathbf{z}\mid X)=\mathcal{N}(\pmb{\mu}(X),\pmb{\Sigma}(X)=\mathrm{diag}(\pmb{\sigma}^2(X)))$, denoting $n$ as the dimensionality of $\mathbf{z}$, KL-divergence has the following analytical form
+  $$
+  \mathrm{KL}(Q_\phi(\mathbf{z}\mid X)\Vert P(\mathbf{z})) = \frac{1}{2}\sum_{i=1}^{n}\left(1+\log(\sigma_i^2) - \mu_i^2 - \sigma_i^2\right)
+  $$
+
+##### When does equality hold true?
+
+- To investigate the problem, subtract the RHS from LHS. But first, we make the assumption that our parameterized model is able to model the ground truth likelihood. Thus in the following deduction, we omit the subscripts on $P$:
+
+  $$
+  \begin{align*}
+   & \phantom{=\;\;\!} \log P(X) - \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}\left[ \log P(\mathbf{z}) + \log P(X\mid\mathbf{z}) - \log Q_\phi(\mathbf{z}\mid X) \right] \\
+   & = \log P(X) - \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}\left[ \log P(\mathbf{z}) + \left(\log P(\mathbf{z}\mid X) + \log P(X) - \log P(\mathbf{z})\right) - \log Q_\phi(\mathbf{z}\mid X) \right] \\
+   & = \mathbb{E}_{\mathbf{z}\sim Q_\phi(\cdot\mid X)}[\log Q_\phi(\mathbf{z}\mid X) - \log P(\mathbf{z}\mid X)] = \mathrm{KL}(Q_\phi(\mathbf{z}\mid X)\Vert P(\mathbf{z}\mid X))
+  \end{align*}
+  $$
+
+  where $P(\mathbf{z}\mid X)$ is the true posterior. So the closer $Q_\phi$ matches the true posterior distribution, the tighter our lower bound is.
+
+- This also shows another reason why we choose to optimize the lower bound instead: this KL-divergence term is intractable, because we have no idea which $\mathbf{z}$'s give high probability to $X$.
+
+##### FAQ
+
+With the knowledge in mind, we can look back at some problems that was glossed over:
+
+- **Why is a simple Gaussian sufficient for prior?** Apart from the "NN can learn any CDF" reason, we use Gaussian also because it is a commonly-used distribution with a non-zero probability for every point in $\mathbb{R}$. And the fact that not all distributions can be re-parameterized.
+- **Why do we constrain the KL-divergence of posterior $Q_\phi$ and prior $P_\lambda$?** This does not make sense in that if this term is minimized, then the KL-divergence term on the other side of the equation, namely $\mathrm{KL}(Q_\phi(\mathbf{z}\mid X)\Vert P(\mathbf{z}\mid X))$ would be large, which gives us a loose lower bound. This term mainly serves as **regularization**, for we're using NNs for $Q_\phi$, and we should constrain its form.
+
+#### Possible issues
+
+- **Over-regularization**
+  - KL-divergence takes a simple form for simplistic priors, and is much easier to learn. Encoder would quickly match the Gaussian prior.
+  - **Solutions**:
+    - Initially set KL-divergence term to zero, and gradually anneal to a predefined scale. Can be seen as first overfitting and then regularizing.
+    - Or, design more complex priors.
+- **Ignoring latent code**
+  - For sequential decoders, a simple latent code would force the model to rely on the ground truth of previous time steps, and a powerful model may learn decoding without consulting the latent code.
+  - **Solutions**:
+    - Apply dropout on decoder inputs.
+    - Or, constraining the amount of context that the decoder is allow to see.
+
+#### Extensions
+
+##### Conditional VAE
+
+- Autoencode $X$ given $Y$, for instance generate user content given his previous work.
+- Simply change $Q_\phi$ and $P_\theta$ to conditional distributions. This means both the encoder and decoder needs to condition on $Y$.
+
+##### Discrete Latent Variables
+
+- Reparameterization trick fails for discrete distributions.
+
+- Marginalize over every possible discrete choice.
+
+- Or, use the [Gumbel-Softmax](#gumbel-max-trick--gumbel-softmax-distribution) technique.
+
+  ​

@@ -1,7 +1,8 @@
 ---
 navlevel: header
-navtitle: English
+navtitle: Articles
 title: "Articles"
+permalink: /index/en/
 layout: home
 locale: en
 pagination: 

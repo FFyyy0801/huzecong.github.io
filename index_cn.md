@@ -1,8 +1,9 @@
 ---
 navlevel: header
-navtitle: Chinese
+navtitle: 文章列表
+position: 100
 title: "目录"
-permalink: /index_cn/
+permalink: /index/cn/
 layout: home
 # locale: zh-Hans
 pagination: 

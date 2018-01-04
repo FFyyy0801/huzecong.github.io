@@ -111,7 +111,7 @@ $$
 
 - Concretely, for every $k_1$ time steps, train on the following $k_2$ time steps. When $k_1<k_2$, there's overlap between consecutive time steps; sometimes $k_1=k_2$ is desired.
 
-  ![](https://r2rt.com/static/images/RNN_tf_truncated_backprop.png)
+  ![truncated backprop](https://r2rt.com/static/images/RNN_tf_truncated_backprop.png)
 
 - Initial state may be **zeroed** by a small probability, so as to bias the model towards being easily start from a zero state in test time *(ref: [[Melis, Dyer 2017] On the State of the Art of Evaluation in Neural Language Models](https://arxiv.org/pdf/1707.05589.pdf))*
 

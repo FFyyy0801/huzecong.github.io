@@ -149,14 +149,14 @@ article {
 .site-title, .site-title:hover, .site-title:visited {
   display: inline-block;
   font-variant-caps: all-petite-caps;
-  font-size: 0.875em;
+  font-size: 1em;
   @include font-serif;
   border-bottom: none;
   white-space: nowrap;
 }
 
 .site-nav {
-  font-size: 0.875em;
+  font-size: 1em;
   font-variant-caps: all-petite-caps;
   letter-spacing: 0.12em;
 }

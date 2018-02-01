@@ -41,9 +41,6 @@ defaults:
 
 permalink: /:year/:month/:day/:title/
 
-# Explicitly turn off the old code
-paginate: nil
-paginate_path: nil
 # Pagination Settings
 pagination:
   enabled: true

@@ -36,7 +36,7 @@ mathjax: true
 
 如果使用外接显示器的话，至此已经可以正常使用了。但是我们可以通过进一步的配置，让内置显示器使用外接显卡渲染。这一部分的原理似乎是，在Mac启动时会检测是否存在独立显卡，如果存在则不会使用集成显卡。但是为了使用NVIDIA Optimus来让GPU为内置显示器渲染，则需要让集成显卡保持运行。
 
-具体描述请参见链接[#1](#参考链接)。
+具体描述请参见链接[^1]。
 
 #### 第一步：设置启动盘
 
@@ -78,7 +78,7 @@ mathjax: true
 
 需要注意的是，安装驱动时需要开启System Integrity Protection（SIP）。具体方法是在开机进入macOS系统前按住Cmd+R进入恢复模式，打开命令行执行`csrutil enable`。同理，执行`csrutil disable`则可以关闭SIP。如果没有手动关闭过SIP的话，默认状态下SIP是开启的。
 
-为了使用外置GPU，还需要做一些附加的配置。从 <https://egpu.io/wp-content/uploads/wpforo/attachments/3/3858-nvidia-egpu-v2-1013-1.zip> 下载NVIDIAEGPUSupport，并在**关闭SIP**的情况下安装。详细信息可以参考连接[#3](#参考链接)。
+为了使用外置GPU，还需要做一些附加的配置。从 <https://egpu.io/wp-content/uploads/wpforo/attachments/3/3858-nvidia-egpu-v2-1013-1.zip> 下载NVIDIAEGPUSupport，并在**关闭SIP**的情况下安装。详细信息可以参考连接[^3]。
 
 不过这时，如果在启动时连接了eGPU，则进入登录界面后会花屏。如果在启动后连接eGPU，在系统信息中的显卡信息处只能看到“NVIDIA Chip Model”，并不会显示具体型号。解决方法和Windows部分使用内置显示器的方法类似：将启动盘设为macOS分区，执行macOS下的`gpu-switch`，然后重启时从EFI Boot启动。此时可以正常进入登录界面，登录后可以使用[CUDA-Z](http://cuda-z.sourceforge.net/)检测GPU。
 
@@ -88,7 +88,7 @@ mathjax: true
 
 至此，虽然使用了Windows部分的方法，但仍然没有让内置显示器用上eGPU。在关于本机的页面中，Built-in Display下面显示的仍然是Intel Iris Pro内置显卡。
 
-链接[#2](#参考链接)中给出了一种方法，需要用到一个HDMI的“空插头”。因为手头没有这种插头，我没有尝试，等以后试过了再更新这一部分。
+链接[^2]中给出了一种方法，需要用到一个HDMI的“空插头”。因为手头没有这种插头，我没有尝试，等以后试过了再更新这一部分。
 
 ## 关于Thunderbolt 2的性能损失
 
@@ -98,9 +98,9 @@ mathjax: true
 - TB3：32Gbps
 - TB2：16Gbps
 
-因此TB2成为了瓶颈。实际测试在macOS下，传输速度约为1200MB/s，也就是9.6Gbps。如果使用内置显示器的话，速度会更低。根据链接[#4](#参考链接)中的测试，在TB2连接下使用GTX 1080大概会有40%的性能损失，使用外置显示器可以将损失减小到20%。
+因此TB2成为了瓶颈。实际测试在macOS下，传输速度约为1200MB/s，也就是9.6Gbps。如果使用内置显示器的话，速度会更低。根据链接[^4]中的测试，在TB2连接下使用GTX 1080大概会有40%的性能损失，使用外置显示器可以将损失减小到20%。
 
-另外，链接[#5](#参考链接)中指出性能损失可能也部分来自于`apple_set_os.efi`，并给出了一个解决方法。我没有仔细阅读，大家可以自行参考。
+另外，链接[^5]中指出性能损失可能也部分来自于`apple_set_os.efi`，并给出了一个解决方法。我没有仔细阅读，大家可以自行参考。
 
 就游戏体验来说，即便只有60%的性能，大部分游戏也绰绰有余了。在Windows下使用1920x1600分辨率运行的NieR:Automata，在开启最高画质、关闭垂直同步时仍然较为流畅（主观感受，没有实际测过帧率）。对我来说大概够了。
 
@@ -108,9 +108,8 @@ mathjax: true
 
 ## 参考链接
 
-- [1] <https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/>
-- [2] <https://egpu.io/how-to-egpu-accelerated-internal-display-macos/>
-- [3] <https://egpu.io/forums/mac-setup/wip-nvidia-egpu-support-for-high-sierra/>
-- [4] <https://egpu.io/forums/mac-setup/pcie-slot-dgpu-vs-thunderbolt-3-egpu-internal-display-test/>
-- [5] <https://egpu.io/forums/mac-setup/mbp-tb3-port-underperformance-16xxmibs-instead-of-22xxmibs-under-macos-or-windowsapple_set_os-efi/>
-
+[^1]: <https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/>
+[^2]: <https://egpu.io/how-to-egpu-accelerated-internal-display-macos/>
+[^3]: <https://egpu.io/forums/mac-setup/wip-nvidia-egpu-support-for-high-sierra/>
+[^4]: <https://egpu.io/forums/mac-setup/pcie-slot-dgpu-vs-thunderbolt-3-egpu-internal-display-test/>
+[^5]: <https://egpu.io/forums/mac-setup/mbp-tb3-port-underperformance-16xxmibs-instead-of-22xxmibs-under-macos-or-windowsapple_set_os-efi/>

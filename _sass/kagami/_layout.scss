@@ -103,6 +103,20 @@ article {
     & + .sidenote + * { margin-top: -0.5 * $hspacing; }
   }
 
+  // use footnote as citation
+  .reversefootnote {
+    font-family: "Crimson Text", "Kagami SC", sans-serif;
+  }
+
+  div.post-content sup {
+    font-size: unset;
+    vertical-align: baseline;
+    &::before { content: "["; }
+    &::after { content: "]"; }
+    // > a {
+    //   padding: 0;
+    // }
+  }
 }
 
 .post-header {

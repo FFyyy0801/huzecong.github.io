@@ -67,7 +67,8 @@ article {
   // }
 
   $a-color: hsl(163, 59%, 34%);
-  div.post-content a {
+  div.post-content a,
+  div.page-content a {
     color: $a-color;
     text-shadow: 0 1px 0 lighten($a-color, 60%);
     text-decoration: none;

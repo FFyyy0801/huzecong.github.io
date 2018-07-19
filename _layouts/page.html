@@ -6,5 +6,7 @@ layout: default
 
 <article class="page" lang="{{ page.lang | default: site.lang | default: "en" }}" itemscope itemtype="http://schema.org/BlogPosting">
   {% include header.html %}
-  {{ content }}
+  <div class="page-content" itemprop="articleBody">
+    {{ content }}
+  </div>
 </article>

@@ -21,4 +21,4 @@ Zecong Hu (Chinese: 胡泽聪)
 - diaries (mainly per-semester reviews of college life; in Chinese)
 - tech blogs & research notes
 - and gibberish
-- for the text adventure game dedicated to CST4 (天下大计), click [here](http://cst4.zecong.hu/)
+- [天下大计](http://cst4.zecong.hu/): a text adventure game dedicated to CST4

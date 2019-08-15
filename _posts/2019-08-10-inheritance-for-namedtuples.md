@@ -451,7 +451,11 @@ TypeError                                 Traceback (most recent call last)
 TypeError: multiple bases have instance lay-out conflict
 ```
 
-Now this is something new, an error message I've never seen before. It turns out that I cannot inherit from multiple built-in classes that don't go together at the C level, in this case, tuples with different layouts. I can see why this is a problem: such built-in types are implemented in C, with fixed memory layouts and implementations for special methods.
+Now this is something new, an error message I've never seen before. It turns out that I cannot inherit from multiple built-in classes that don't go together at the C level[^4], in this case, two different subclasses of `tuple`. I can see why this is a problem: such built-in types are implemented in C, with fixed memory layouts and implementations for special methods.
+
+[^4]: This is a simplified explanation. [This StackOverflow answer](https://stackoverflow.com/questions/48136025/typeerror-multiple-bases-have-instance-lay-out-conflict) gave a pointer to the CPython source code that calculates the best "solid base" for a new class. I'm not familiar with CPython implementations, but my guess is that the solid base is the first class among the MRO with a memory layout different from its base class. Note that adding Python attributes and methods don't affect the memory layout, because that's equivalent to adding entries to the `__dict__` dictionary.
+
+    Also note that this is not limited to CPython. Mypy also has [a similar check](https://bitbucket.org/pypy/pypy/annotate/default/pypy/objspace/std/typeobject.py?at=default&fileviewer=file-view-default#typeobject.py-1064:1086).
 
 If we can't create the type with our bases, how about modifying the bases after creation? It turns out you can't do that either:
 
@@ -466,7 +470,9 @@ If we can't create the type with our bases, how about modifying the bases after 
 TypeError: __bases__ assignment: 'Options' object layout differs from 'tuple'
 ```
 
-It seems that we're out of luck. But actually, here's some less known evil: you can [override the creation of the MRO](http://stupidpythonideas.blogspot.com/2015/12/can-you-customize-method-resolution.html)[^4] in the metaclass! But the crazy thing here is, we need to implement the C3 linearization algorithm[^4] ourselves. Luckily, it's a simple algorithm:
+It seems that we're out of luck. But actually, here's some less known evil: you can [override the creation of the MRO](http://stupidpythonideas.blogspot.com/2015/12/can-you-customize-method-resolution.html)[^5] in the metaclass! But the crazy thing here is, we need to implement the C3 linearization algorithm ourselves. Luckily, it's a simple algorithm:
+
+[^5]: If you don't know what this means, you have skipped footnote 3.
 
 ```python
 class OptionsMeta(typing.NamedTupleMeta):
@@ -520,8 +526,6 @@ def c3merge(sequences):
 ```
 
 Of course, this complex method is when you need to support every general case. Normally you wouldn't have multiple layers of hierarchy for namedtuples, nor will you mix-in a bunch of other classes such that you need to be careful about the MRO.
-
-[^4]: If you don't know what this means, you have skipped footnote 3.
 
 ## Arbitrary Order of Fields
 

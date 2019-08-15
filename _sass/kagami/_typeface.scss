@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,700|Press+Start+2P');
+@import url('https://fonts.googleapis.com/css?family=Fira+Code&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif+SC:300&display=swap&subset=chinese-simplified');
 
 @font-face {
   font-family: "Kagami SC";
@@ -56,23 +57,23 @@
 }
 
 @mixin font-serif($font-family-fallback: serif) {
-  font-family: "Crimson Text", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "Kagami SC", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-serif-zh-Hans($font-family-fallback: sans-serif) {
-  font-family: "Crimson Text", "Kagami SC", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "Kagami SC", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-serif-zh-Hant($font-family-fallback: sans-serif) {
-  font-family: "Crimson Text", "Kagami TC", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "Kagami TC", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-serif-ja($font-family-fallback: sans-serif) {
-  font-family: "Crimson Text", "YuMincho", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "YuMincho", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-monospace($font-family-fallback: monospace) {
-  font-family: Courier, Monaco, $font-family-fallback;
+  font-family: "Fira Code", Courier, Monaco, $font-family-fallback;
 }
 
 @function font-size($factor: 1.0) {

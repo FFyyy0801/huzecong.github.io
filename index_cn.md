@@ -5,7 +5,7 @@ position: 100
 title: "目录"
 permalink: /index/cn/
 layout: home
-# locale: zh-Hans
+locale: zh-Hans
 pagination: 
   enabled: true
   locale: zh-Hans

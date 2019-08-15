@@ -69,31 +69,31 @@ article {
   $a-color: hsl(163, 59%, 34%);
   div.post-content a,
   div.page-content a {
+    line-height: 1.3em;
     color: $a-color;
     text-shadow: 0 1px 0 lighten($a-color, 60%);
     text-decoration: none;
     border-bottom: 1px dashed lighten($a-color, 15%);
-    display: inline-block;
+    display: inline;
     position: relative;
-    padding: 0 0.2em;
-    transition: all 250ms;
+    // padding: 0 0.2em;
+    transition: all 300ms;
     z-index: 1000;
-    &:before {
-      content: "";
-      z-index: -1;
-      width: 100%;
-      height: 0%;
-      background: rgba(lighten($a-color, 20%), 0.1);
-      bottom: 0;
-      left: 0;
-      position: absolute;
-      transition: height 250ms;
-    }
+
+    background-image: linear-gradient(
+      rgba(lighten($a-color, 20%), 0.2),
+      rgba(lighten($a-color, 20%), 0.2)
+    );
+    background-position: 0% 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1000%;
+    
     &:hover {
-      border-color: transparent;
-      &:before {
-        height: 100%;
-      }
+      background-size: 100% 100%;
+    }
+
+    code {
+      background-color: inherit;
     }
   }
 
@@ -118,13 +118,14 @@ article {
     margin: 0 -0.05em;
     font-size: 0.875em;
     @include font-monospace;
-    color: $inline-code-color;
-    background: $inline-code-background;
+    // color: $inline-code-color;
+    color: lighten($content-color, 10%);
+    // background: $inline-code-background;
     border-radius: 3px;
   }
 
   pre {
-    color: lighten($content-color, 20%);
+    color: lighten($content-color, 10%);
     background: $block-code-background;
     code {
       margin: 0;
@@ -262,7 +263,7 @@ article {
 }
 
 .cover-meta {
-  font-family: "Press Start 2P", cursive;
+  font-family: cursive;
   font-variant-caps: all-petite-caps;
   font-size: 0.4em;
   color: #fff;

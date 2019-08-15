@@ -2,7 +2,7 @@
 layout: post
 title:  "在MacBook Pro上配置使用外置显卡"
 date:   2017-11-18 13:42:05 -0400
-categories: guide
+categories: tech
 locale: zh-Hans
 mathjax: true
 ---

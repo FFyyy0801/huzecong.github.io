@@ -6,6 +6,13 @@ $post-footer-spacing: 3 * $spacing-unit;
 html {
   height: 100%;
   overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {

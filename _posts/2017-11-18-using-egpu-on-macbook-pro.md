@@ -5,6 +5,7 @@ date:   2017-11-18 13:42:05 -0400
 categories: tech
 locale: zh-Hans
 mathjax: true
+footnote_title: "参考链接"
 ---
 
 在听说 macOS High Sierra 官方支持 eGPU 之后，便一直想买一块显卡，以弥补我用 Mac 5年以来没怎么玩过大型 3D 游戏的遗憾，顺带炼一炼丹。趁着双十一这个借口，狠下心来买了一个 eGPU 盒子和一块 1080 Ti。
@@ -26,7 +27,7 @@ mathjax: true
 
 另外，由于这个盒子使用 Thunderbolt 3 接口且只附赠 TB3 公对公连接线，因此还需要自行购买转接器。市面上只有 TB3 公对 TB2 母的转接器，不过因为是双向的，可以搭配 TB2 公对公连接线使用。
 
-## 在Windows上配置
+## 在 Windows 上配置
 
 不得不说，Windows 对各类硬件的支持还是完善得多。在 Windows 上配置非常简单，由于 Boot Camp 自带 TB 驱动，eGPU 盒子即插即用，只要上 NVIDIA 官网下最新驱动安装即可。
 
@@ -58,11 +59,11 @@ mathjax: true
 
 当然，更简单的办法应该是在 macOS 下使用 Disk Utility（磁盘工具）完成上述操作。
 
-之后，从 <https://github.com/0xbb/apple_set_os.efi/releases> 下载 `apple_set_os.efi`。在U盘根目录下创建目录 `/EFI/Boot`，并将下载的文件重命名为 `bootx64.efi` 放在目录中。
+之后，下载 [`apple_set_os.efi`](https://github.com/0xbb/apple_set_os.efi/releases)。在U盘根目录下创建目录 `/EFI/Boot`，并将下载的文件重命名为 `bootx64.efi` 放在目录中。
 
-#### 第三步：执行 gpu-switch
+#### 第三步：执行 `gpu-switch`
 
-在 <https://github.com/0xbb/gpu-switch> 下载 `gpu-switch` 的 Windows 版本。它的作用是在下次启动系统时使用集成显卡。以管理员权限执行 `integrated.bat` 即可。
+下载 [`gpu-switch`](https://github.com/0xbb/gpu-switch) 的 Windows 版本。它的作用是在下次启动系统时使用集成显卡。以管理员权限执行 `integrated.bat` 即可。
 
 #### 第四步：通过 EFI Boot 引导
 
@@ -72,13 +73,13 @@ mathjax: true
 
 ## 在 macOS 上配置
 
-现在 macOS 上已经有了 NVIDIA 的官方驱动支持。目前最新的 WebDriver 版本号为 378.10.10.10.20.107，可以在 <http://www.nvidia.com/download/driverResults.aspx/126538/en-us> 下载。同时需要安装对应的 CUDA 驱动。
+现在 macOS 上已经有了 NVIDIA 的官方驱动支持。目前最新的 WebDriver 版本号为 378.10.10.10.20.107，可以在 [NVIDIA 官方网站](http://www.nvidia.com/download/driverResults.aspx/126538/en-us)上下载。同时需要安装对应的 CUDA 驱动。
 
 如果要在 NVIDIA 官网搜索最新版本的 macOS 驱动，则需要在产品系列选择“GeForce 600 Series”，操作系统选择“Show all Operating Systems”，然后选择对应的 macOS 系统版本。这是因为该驱动目前只为该系列显卡提供正式支持，对较新的显卡的支持还在 beta 阶段。
 
 需要注意的是，安装驱动时需要开启 System Integrity Protection（SIP）。具体方法是在开机进入 macOS 系统前按住 Cmd+R 进入恢复模式，打开命令行执行 `csrutil enable`。同理，执行 `csrutil disable`则可以关闭 SIP。如果没有手动关闭过 SIP的话，默认状态下 SIP是开启的。
 
-为了使用外置 GPU，还需要做一些附加的配置。从 <https://egpu.io/wp-content/uploads/wpforo/attachments/3/3858-nvidia-egpu-v2-1013-1.zip> 下载 NVIDIAEGPUSupport，并在**关闭 SIP** 的情况下安装。详细信息可以参考连接[^3]。
+为了使用外置 GPU，还需要做一些附加的配置。下载 [NVIDIAEGPUSupport](https://egpu.io/wp-content/uploads/wpforo/attachments/3/3858-nvidia-egpu-v2-1013-1.zip)，并在**关闭 SIP** 的情况下安装。详细信息可以参考连接[^3]。
 
 不过这时，如果在启动时连接了 eGPU，则进入登录界面后会花屏。如果在启动后连接 eGPU，在系统信息中的显卡信息处只能看到“NVIDIA Chip Model”，并不会显示具体型号。解决方法和 Windows 部分使用内置显示器的方法类似：将启动盘设为 macOS 分区，执行 macOS 下的 `gpu-switch`，然后重启时从 EFI Boot 启动。此时可以正常进入登录界面，登录后可以使用 [CUDA-Z](http://cuda-z.sourceforge.net/) 检测 GPU。
 
@@ -105,8 +106,6 @@ mathjax: true
 就游戏体验来说，即便只有60%的性能，大部分游戏也绰绰有余了。在 Windows 下使用 1920x1600 分辨率运行的 NieR:Automata，在开启最高画质、关闭垂直同步时仍然较为流畅（主观感受，没有实际测过帧率）。对我来说大概够了。
 
 另一方面，对于炼丹而言，计算耗时应该远高于传输耗时，因此瓶颈影响不大。不过这也只是我的猜想，还没有实测过。
-
-## 参考链接
 
 [^1]: <https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/>
 [^2]: <https://egpu.io/how-to-egpu-accelerated-internal-display-macos/>

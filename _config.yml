@@ -17,6 +17,7 @@ plugins:
 name: huzecong_blog
 
 # permalink: pretty
+# future: true
 
 title: Zecong Hu's blog
 author: Zecong Hu
@@ -60,3 +61,4 @@ pagination:
   # indexpage: 'index'
 
 google_analytics: UA-48327586-2
+tooltip: true

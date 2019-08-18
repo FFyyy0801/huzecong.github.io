@@ -2,20 +2,20 @@
 @import url('https://fonts.googleapis.com/css?family=Libre+Baskerville&display=swap');
 
 // Fonts will not be downloaded if they're not used.
-@import url('https://fonts.googleapis.com/css?family=Noto+Serif+SC:300&display=swap&subset=chinese-simplified');
-@import url('https://fonts.googleapis.com/css?family=Noto+Serif+TC:300&display=swap&subset=chinese-traditional');
-@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP:300&display=swap&subset=japanese');
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif+SC:300,600&display=swap&subset=chinese-simplified');
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif+TC:300,600&display=swap&subset=chinese-traditional');
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP:300,600&display=swap&subset=japanese');
 
 @font-face {
   font-family: "Kagami SC";
-  src: local("Palatino"), local("Songti SC Light"), local(STSongti-SC-Light);
+  src: local("Songti SC Light"), local(STSongti-SC-Light);
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Kagami SC";
-  src: local("Palatino"), local("Songti SC Bold"), local(STSongti-SC-Bold);
+  src: local("Songti SC Bold"), local(STSongti-SC-Bold);
   font-weight: bold;
   font-style: normal;
 }
@@ -36,14 +36,14 @@
 
 @font-face {
   font-family: "Kagami TC";
-  src: local("Palatino"), local("Songti TC Light"), local(STSongti-TC-Light);
+  src: local("Songti TC Light"), local(STSongti-TC-Light);
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Kagami TC";
-  src: local("Palatino"), local("Songti TC Bold"), local(STSongti-TC-Bold);
+  src: local("Songti TC Bold"), local(STSongti-TC-Bold);
   font-weight: bold;
   font-style: normal;
 }
@@ -66,11 +66,11 @@
 }
 
 @mixin font-serif-zh-Hans($font-family-fallback: serif) {
-  font-family: "Kagami SC", "Libre Baskerville", "Noto Serif SC", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "Kagami SC", "Libre Baskerville", "Noto Serif SC", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-serif-zh-Hant($font-family-fallback: serif) {
-  font-family: "Kagami TC", "Libre Baskerville", "Noto Serif TC", $font-family-fallback, "Kagami Emoji";
+  font-family: "Palatino", "Kagami TC", "Libre Baskerville", "Noto Serif TC", $font-family-fallback, "Kagami Emoji";
 }
 
 @mixin font-serif-ja($font-family-fallback: serif) {

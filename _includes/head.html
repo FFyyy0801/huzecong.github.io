@@ -32,6 +32,12 @@
   <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
 
+  {% if page.tooltip or site.tooltip %}
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  {% endif %}
+
   {% if page.mathjax or site.mathjax %}
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({

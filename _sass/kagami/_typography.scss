@@ -27,7 +27,44 @@ a, a:hover, a:visited {
   @include scut-link-unstyled;
 }
 
+$a-color: hsl(163, 59%, 34%);
+article div.post-content a,
+article div.page-content a,
+div.tippy-popper div.tippy-content a {
+  line-height: 1.3em;
+  color: $a-color;
+  text-shadow: 0 1px 0 lighten($a-color, 60%);
+  text-decoration: none;
+  border-bottom: 1px dashed lighten($a-color, 15%);
+  display: inline;
+  position: relative;
+  // padding: 0 0.2em;
+  transition: all 300ms;
+  z-index: 1000;
+
+  background-image: linear-gradient(
+    rgba(lighten($a-color, 20%), 0.2),
+    rgba(lighten($a-color, 20%), 0.2)
+  );
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1000%;
+
+  &:hover {
+    background-size: 100% 100%;
+  }
+
+  code {
+    color: inherit;
+    background-color: inherit;
+  }
+}
+
 article {
+
+  a.footnote {
+    user-select: none;
+  }
 
   h2, h3, h4, h5, h6 {
     &::before {
@@ -65,37 +102,6 @@ article {
   // a, a:hover, a:visited {
   //   border-bottom: 1px dotted currentColor;
   // }
-
-  $a-color: hsl(163, 59%, 34%);
-  div.post-content a,
-  div.page-content a {
-    line-height: 1.3em;
-    color: $a-color;
-    text-shadow: 0 1px 0 lighten($a-color, 60%);
-    text-decoration: none;
-    border-bottom: 1px dashed lighten($a-color, 15%);
-    display: inline;
-    position: relative;
-    // padding: 0 0.2em;
-    transition: all 300ms;
-    z-index: 1000;
-
-    background-image: linear-gradient(
-      rgba(lighten($a-color, 20%), 0.2),
-      rgba(lighten($a-color, 20%), 0.2)
-    );
-    background-position: 0% 100%;
-    background-repeat: no-repeat;
-    background-size: 0% 1000%;
-    
-    &:hover {
-      background-size: 100% 100%;
-    }
-
-    code {
-      background-color: inherit;
-    }
-  }
 
   img.half-size, img.retina2x {
     // Supported by JavaScript

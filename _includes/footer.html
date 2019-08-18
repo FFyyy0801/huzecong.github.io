@@ -1,3 +1,56 @@
+{% if page.tooltip or site.tooltip %}
+<script type="text/javascript">
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /&nbsp;<a href="#fnref:\d+" class="reversefootnote">↩<\/a>/;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+{% endif %}
+
+<script type="text/javascript">
+  const footnoteTitleText =
+    {% if page.footnote_title %}
+      "{{ page.footnote_title }}"
+    {% elsif page.locale == "zh-Hans" %}
+      "注释"
+    {% elsif page.locale == "zh-Hant" %}
+      "注釋"
+    {% elsif page.locale == "en" %}
+      "Footnotes"
+    {% elsif page.locale == "ja" %}
+      "注解"
+    {% else %}
+      null
+    {% endif %}
+    ;
+  console.log(footnoteTitleText);
+  if (footnoteTitleText !== null) {
+    (function() {
+      const footnotes = document.querySelector("div.footnotes");
+      if (footnotes !== null) {
+        const title = document.createElement("h2");
+        title.innerHTML = footnoteTitleText;
+        footnotes.parentNode.insertBefore(title, footnotes);
+      }
+    })();
+  }
+</script>
+
 <footer class="site-footer">
 
   <div class="wrapper">

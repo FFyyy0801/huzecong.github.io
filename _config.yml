@@ -72,3 +72,4 @@ toc:
   sublist_class: ''
   item_class: toc-entry
   item_prefix: toc-
+timezone: UTC

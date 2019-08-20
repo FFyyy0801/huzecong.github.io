@@ -601,3 +601,5 @@ So far, we've delivered our promises. We have a super-enhanced version of namedt
 But you may ask, what's it useful for?
 
 I dunno, but it's a pretty fun journey, isn't it?
+
+## Footnotes

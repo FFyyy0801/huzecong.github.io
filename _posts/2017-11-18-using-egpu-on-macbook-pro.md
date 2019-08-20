@@ -5,7 +5,6 @@ date:           2017-11-18 13:42:05 -0400
 categories:     tech
 locale:         zh-Hans
 mathjax:        true
-footnote_title: "参考链接"
 toc:            true
 ---
 
@@ -107,6 +106,8 @@ toc:            true
 就游戏体验来说，即便只有60%的性能，大部分游戏也绰绰有余了。在 Windows 下使用 1920x1600 分辨率运行的 NieR:Automata，在开启最高画质、关闭垂直同步时仍然较为流畅（主观感受，没有实际测过帧率）。对我来说大概够了。
 
 另一方面，对于炼丹而言，计算耗时应该远高于传输耗时，因此瓶颈影响不大。不过这也只是我的猜想，还没有实测过。
+
+## 参考链接
 
 [^1]: <https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/>
 [^2]: <https://egpu.io/how-to-egpu-accelerated-internal-display-macos/>

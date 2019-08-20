@@ -23,35 +23,6 @@
 </script>
 {% endif %}
 
-<script type="text/javascript">
-  // Add a "Footnote" section title.
-  const footnoteTitleText =
-    {% if page.footnote_title %}
-      "{{ page.footnote_title }}"
-    {% elsif page.locale == "zh-Hans" %}
-      "注释"
-    {% elsif page.locale == "zh-Hant" %}
-      "注釋"
-    {% elsif page.locale == "en" %}
-      "Footnotes"
-    {% elsif page.locale == "ja" %}
-      "注解"
-    {% else %}
-      null
-    {% endif %}
-    ;
-  if (footnoteTitleText !== null) {
-    (function() {
-      const footnotes = document.querySelector("div.footnotes");
-      if (footnotes !== null) {
-        const title = document.createElement("h2");
-        title.innerHTML = footnoteTitleText;
-        footnotes.parentNode.insertBefore(title, footnotes);
-      }
-    })();
-  }
-</script>
-
 {% if page.toc %}
 <script type="text/javascript">
   // Add "active" highlight to TOC on left.
@@ -84,10 +55,7 @@
         subList: subList,
       };
     });
-  // Since elements are popped out of the stack in a
-  // different order, we store the same objects in both arrays.
-  let stack = [],
-      tocPointer = 0;
+  let tocPointer = 0;
   const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
   for (let index = 0; index < contentElems.length; ++index) {
     const elem = contentElems[index];
@@ -98,36 +66,20 @@
         tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
       }
 
-      // Pop items on the stack that are nested deeper.
-      while (stack.length > 0 && stack[0].level >= level) {
-        stack[0].scopeBottom = contentElems[index - 1];
-        stack.shift();
-      }
-
       // Current element matches the next entry in the TOC.
       if (tocPointer < tocItems.length &&
           elem.id === tocItems[tocPointer].href) {
         const curTocItem = tocItems[tocPointer];
         curTocItem.level = level;
         curTocItem.titleElem = elem;
-        stack.unshift(curTocItem);
         ++tocPointer;
       }
     }
   }
   // Final TOC items has not yet ended.
-  while (stack.length > 0) {
-    stack[0].scopeBottom = contentElems[contentElems.length - 1];
-    stack.shift();
-  }
   if (tocPointer > 0 && tocPointer <= tocItems.length) {
     tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
   }
-
-  // Factor of screen size that the element must cross
-  // before it's considered visible
-  const TOP_MARGIN = 0.1,
-        BOTTOM_MARGIN = 0.5;
 
   let pathLength;
 
@@ -136,13 +88,12 @@
   function drawPath() {
     const path = [];
     let pathIndent,
-        entryCount = 0;
+        topOffset = 0;
 
     tocItems.forEach(function(item) {
       const x = item.anchor.offsetLeft - 5,
-            // y = item.anchor.offsetTop,
             height = item.anchor.offsetHeight;
-      const y = entryCount * height;
+      const y = topOffset;
 
       const parent = item.item.parentNode;
       if (!(parent.classList.contains("section-nav") ||
@@ -167,7 +118,7 @@
 
         path.push('L', x, y + height);
       }
-      ++entryCount;
+      topOffset += height;
 
       pathIndent = x;
       tocPath.setAttribute('d', path.join(' '));
@@ -241,7 +192,7 @@
   let transitionTicket = 0, transitionCounter = 0;
 
   // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
-  async function toggleItems(index, callback) {
+  async function toggleItems(callback) {
 
     // Empty loop waiting for ticket.
     const ticket = transitionCounter++;
@@ -249,7 +200,8 @@
       await sleep(100);
     }
 
-    itemChanges = setActiveEntryClass(index, "expand");
+    // Use the latest active index.
+    itemChanges = setActiveEntryClass(currentActiveIndex, "expand");
 
     function filterMap(list) {
       return list.map(item => item.subList).filter(item => item !== null);
@@ -331,7 +283,7 @@
     });
 
     let index = 0;
-    while (index < tocItems.length) {
+    for (; index < tocItems.length; ++index) {
       if (// Any portion of title is within screen bounds.
           (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
           // Section is the only one on screen...
@@ -341,9 +293,9 @@
              targetBottom[index] > 0) ||
             // ... and the next section title is not completely shown.
             (index < tocItems.length - 1 &&
-             titlePos[index + 1].bottom > windowHeight))))
+             titlePos[index + 1].bottom > windowHeight)))) {
         break;
-      ++index;
+      }
     }
     if (index >= tocItems.length) index = null;
 
@@ -354,7 +306,7 @@
       setActiveEntryClass(index, "active");
 
       requestAnimationFrame(function() {
-        toggleItems(index, function() {
+        toggleItems(function() {
           drawPath();
           setActivePath(index);
         });

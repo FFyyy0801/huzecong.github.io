@@ -13,6 +13,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-paginate-v2
+  - jekyll-toc
 
 name: huzecong_blog
 
@@ -51,7 +52,7 @@ pagination:
   enabled: true
   collection: 'posts'
   per_page: 5
-  permalink: '/page/:num'
+  permalink: '/page/:num.html'
   title: ':title'
   sort_field: 'date'
   sort_reverse: true
@@ -62,3 +63,12 @@ pagination:
 
 google_analytics: UA-48327586-2
 tooltip: true
+
+toc:
+  min_level: 1
+  max_level: 6
+  no_toc_section_class: no_toc_section
+  list_class: section-nav
+  sublist_class: ''
+  item_class: toc-entry
+  item_prefix: toc-

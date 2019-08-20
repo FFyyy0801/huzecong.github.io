@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "大二上总结"
-date:   2016-02-11 12:01:00 +0800
+layout:     post
+title:      "大二上总结"
+date:       2016-02-11 12:01:00 +0800
 categories: diary
-locale: zh-Hans
+locale:     zh-Hans
+toc:        true
 ---
 
 

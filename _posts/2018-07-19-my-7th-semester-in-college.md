@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "大四上总结"
-date:   2018-07-19 13:20:00 +1000
+layout:     post
+title:      "大四上总结"
+date:       2018-07-19 13:20:00 +1000
 categories: diary
-locale: zh-Hans
+locale:     zh-Hans
+toc:        true
 ---
 
 大四了。不知不觉间就成了园子里最年长的本科生。

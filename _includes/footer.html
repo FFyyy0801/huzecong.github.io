@@ -1,5 +1,6 @@
 {% if page.tooltip or site.tooltip %}
 <script type="text/javascript">
+  // Show tooltips for footnotes.
   (function() {
     const footnotes = document.querySelectorAll(".footnotes > ol > li");
     const returnMarkRegex = /&nbsp;<a href="#fnref:\d+" class="reversefootnote">↩<\/a>/;
@@ -23,6 +24,7 @@
 {% endif %}
 
 <script type="text/javascript">
+  // Add a "Footnote" section title.
   const footnoteTitleText =
     {% if page.footnote_title %}
       "{{ page.footnote_title }}"
@@ -38,7 +40,6 @@
       null
     {% endif %}
     ;
-  console.log(footnoteTitleText);
   if (footnoteTitleText !== null) {
     (function() {
       const footnotes = document.querySelector("div.footnotes");
@@ -50,6 +51,325 @@
     })();
   }
 </script>
+
+{% if page.toc %}
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  // Since elements are popped out of the stack in a
+  // different order, we store the same objects in both arrays.
+  let stack = [],
+      tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Pop items on the stack that are nested deeper.
+      while (stack.length > 0 && stack[0].level >= level) {
+        stack[0].scopeBottom = contentElems[index - 1];
+        stack.shift();
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        stack.unshift(curTocItem);
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  while (stack.length > 0) {
+    stack[0].scopeBottom = contentElems[contentElems.length - 1];
+    stack.shift();
+  }
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  // Factor of screen size that the element must cross
+  // before it's considered visible
+  const TOP_MARGIN = 0.1,
+        BOTTOM_MARGIN = 0.5;
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        entryCount = 0;
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            // y = item.anchor.offsetTop,
+            height = item.anchor.offsetHeight;
+      const y = entryCount * height;
+
+      const parent = item.item.parentNode;
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      ++entryCount;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      tocPath.setAttribute('stroke-dashoffset', '1');
+      tocPath.setAttribute(
+        'stroke-dasharray',
+        '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + pathLength);
+      tocPath.setAttribute('opacity', 1);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = 100;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          itemsToRemove.push(item);
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          itemsToAdd.push(item);
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems(index, callback) {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    function filterMap(list) {
+      return list.map(item => item.subList).filter(item => item !== null);
+    }
+    itemChanges = {
+      add: filterMap(itemChanges.add),
+      remove: filterMap(itemChanges.remove),
+    }
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      if (callback !== undefined && callback !== null)
+        requestAnimationFrame(callback);
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = [];
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      targetHeight.push(item.scrollHeight);
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      if (callback !== undefined && callback !== null)
+        requestAnimationFrame(callback);
+    });
+  }
+
+  function updateActive() {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    while (index < tocItems.length) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight))))
+        break;
+      ++index;
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index) {
+      currentActiveIndex = index;
+
+      setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems(index, function() {
+          drawPath();
+          setActivePath(index);
+        });
+      });
+    }
+  }
+
+  updateActive();
+  window.addEventListener('resize', function() {
+    drawPath();
+    updateActive();
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+{% endif %}
 
 <footer class="site-footer">
 

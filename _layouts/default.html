@@ -5,6 +5,14 @@ layout: blank
 <body>
 
   <main class="page-content" aria-label="Content">
+    {% if page.layout == "post" %}
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        {% toc %}
+      </div>
+    </div>
+    {% endif %}
+
     <div class="wrapper">
       {{ content }}
     </div>

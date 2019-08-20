@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "记暑期实践出行"
-date:   2015-07-19 06:01:00 +0800
+layout:     post
+title:      "记暑期实践出行"
+date:       2015-07-19 06:01:00 +0800
 categories: diary
-locale: zh-Hans
+locale:     zh-Hans
+toc:        true
 ---
 
 要是不记录下这次出行的过程的话，也未免太遗憾了。

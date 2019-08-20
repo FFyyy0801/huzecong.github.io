@@ -1,0 +1,85 @@
+$toc-min-width: 150px;
+
+.toc-wrapper {
+  position: relative;
+}
+
+#table-of-contents {
+  ul {
+    padding-left: 2em;
+  }
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+
+  // Code highlight has -32px margin.
+  max-width: calc((100% - #{$content-width}) / 2 - 32px);
+  @media screen and (min-width: $content-width) {
+    max-width: calc((100% - #{$content-width}) / 2 + #{$post-margin-width} - 32px);
+  }
+
+  font-size: font-size(0.8);
+  @include font-sans;
+
+  li.toc-entry {
+    list-style-type: none;
+
+    > a {
+      color: #aaa;
+      transition: all 0.3s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+      box-decoration-break: clone;  // for multiline padding to work
+      -webkit-box-decoration-break: clone;
+      display: inline-block;
+      transform: translateX(0);
+    }
+
+    > ul {
+      overflow-y: hidden;
+      transition: height 0.3s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+      height: 0;
+      // When overflow-y is hidden, overflow-x cannot be visible.
+      // Thus, we add padding to the right to prevent hiding due to
+      // the translation transform.
+      padding-right: 0.5em;
+    }
+    
+    &.active {
+      > a {
+        transform: translateX(0.5em);
+        color: #111;
+      }
+    }
+
+    &.expand {
+      > ul {
+        // height: auto;
+      }
+    }
+  }
+
+  .toc-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    
+    path {
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+// When TOC is less than $toc-min-width wide.
+@media only screen and
+    (max-width: $content-width + 2 * ($toc-min-width - $post-margin-width + 32px)) {
+  #table-of-contents {
+    display: none;
+  }
+}

@@ -1,10 +1,11 @@
 ---
-layout: post
-title:  "Codeforces Round #391"
-date:   2017-01-14 13:43:00 +0800
+layout:     post
+title:      "Codeforces Round #391"
+date:       2017-01-14 13:43:00 +0800
 categories: solution
-locale: zh-Hans
-mathjax: true
+locale:     zh-Hans
+mathjax:    true
+toc:        true
 ---
 
 转眼之间已经到了大三，距退役已经三年了。考完期末考试，正好有一场 CF，抱着做康复训练的心态参加了比赛。

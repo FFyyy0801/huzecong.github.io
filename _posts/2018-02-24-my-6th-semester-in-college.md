@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "大三下总结"
-date:   2018-02-24 12:58:00 +0800
+layout:     post
+title:      "大三下总结"
+date:       2018-02-24 12:58:00 +0800
 categories: diary
-locale: zh-Hans
+locale:     zh-Hans
+toc:        true
 ---
 
 这份总结实在是拖得太久了。

@@ -27,6 +27,7 @@ a, a:hover, a:visited {
   @include scut-link-unstyled;
 }
 
+// Credit: https://www.dannyguo.com/blog/animated-multiline-link-underlines-with-css/
 $a-color: hsl(163, 59%, 34%);
 article div.post-content a,
 article div.page-content a,

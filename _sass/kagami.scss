@@ -6,6 +6,11 @@ $font-size: 18px;
 $content-width: 800px;
 $spacing-unit: 32px;
 
+$content-padding: $spacing-unit / 2;
+$post-margin-width: 2 * $spacing-unit;
+$post-header-spacing: 3.5 * $spacing-unit;
+$post-footer-spacing: 3 * $spacing-unit;
+
 // Colors
 $content-color: #3c3c3c;
 $background-color: #fff;
@@ -21,3 +26,4 @@ $mark-background: rgba(yellow, 0.35);
 @import "kagami/typeface";
 @import "kagami/layout";
 @import "kagami/typography";
+@import "kagami/toc";

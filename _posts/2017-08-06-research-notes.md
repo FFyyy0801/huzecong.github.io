@@ -1,10 +1,11 @@
 ---
-layout: post
-title:  "Research Notes"
-date:   2017-08-06 21:53:05 -0400
+layout:     post
+title:      "Research Notes"
+date:       2017-08-06 21:53:05 -0400
 categories: notes
-mathjax: true
-locale: en
+mathjax:    true
+locale:     en
+toc:        true
 ---
 
 This post records my notes taken during summer internship @ CMU LTI. 

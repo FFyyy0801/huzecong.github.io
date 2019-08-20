@@ -64,12 +64,12 @@ layout: default
 <div class="pager" style="padding-bottom: 20px;">
   {% if paginator.previous_page %}
   <div class="pager-previous" style="float: left;">
-      <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
+      <a href="{{ paginator.previous_page_path }}">&larr; Newer Posts</a>
   </div>
   {% endif %}
   {% if paginator.next_page %}
   <div class="pager-next" style="float: right;">
-      <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
+      <a href="{{ paginator.next_page_path }}">Older Posts &rarr;</a>
   </div>
   {% endif %}
 </div>

@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "软工实记"
-date:   2016-02-04 19:47:00 +0800
+layout:     post
+title:      "软工实记"
+date:       2016-02-04 19:47:00 +0800
 categories: diary
-locale: zh-Hans
+locale:     zh-Hans
+toc:        true
 ---
 
 

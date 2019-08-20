@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "Inheritance for Python Namedtuples"
-date:   2019-08-10 15:05:00 -0400
+layout:     post
+title:      "Inheritance for Python Namedtuples"
+date:       2019-08-10 15:05:00 -0400
 categories: tech
-locale: en
+locale:     en
+toc:        true
 ---
 
 >  **tl;dr:** Inheritance for the Python built-in namedtuple does not work as we expect. This blog post demonstrates how to create a custom namedtuple class that supports meaningful inheritance, and more.

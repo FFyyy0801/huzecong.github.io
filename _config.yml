@@ -26,7 +26,7 @@ email: huzecong@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   The personal blog of Zecong Hu. Contains diaries, tech articles, and gibberish.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://huzecong.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "http://zecong.hu" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: huzecong
 disqus_shortname: huzecong-blog
 # theme: jekyll-theme-kagami

@@ -30,8 +30,8 @@ Zecong Hu (Chinese: 胡泽聪)
 
 - Gold medalist @ NOI 2013
 - Gold medalist @ ACM/ICPC 2014 Asia Regionals
-- 1st place @ Bloomberg CodeCon, 2019
 - Outstanding Graduate Award @ Tsinghua University, 2018
+- 1st place @ Bloomberg CodeCon, 2019
 
 **Projects**:
 
@@ -40,13 +40,16 @@ Zecong Hu (Chinese: 胡泽聪)
 
 **Publications:**
 
-- [Stack-Pointer Networks for Dependency Parsing.](https://aclweb.org/anthology/papers/P/P18/P18-1130/)<br/>
-  Xuezhe Ma, Zecong Hu, Jingzhou Liu, Nanyun Peng, Graham Neubig, Eduard Hovy.<br/>
-  *Annual Meeting of the Association for Computational Linguistics (ACL)*, 2018.
-- [SOURCE: Source-Conditional ELMo-Style Model for Machine Translation Quality Estimation.](http://www.statmt.org/wmt19/pdf/WMT0085.pdf)<br/>
+- [Latent Relation Language Models.](https://arxiv.org/abs/1908.07690)<br/>
+  Hiroaki Hayashi\*, Zecong Hu\*, Chenyan Xiong, Graham Neubig.<br/>
+  *arXiv preprint*, 2019.
+- [SOURCE: Source-Conditional ELMo-Style Model for Machine Translation Quality Estimation.](https://www.aclweb.org/anthology/W19-5411/)<br/>
   Junpei Zhou\*, Zhisong Zhang\*, Zecong Hu\*.<br/>
   *Proceedings of the Fourth Conference on Machine Translation (WMT)*, 2019.<br/>
   2nd place in En-De sentence-level quality estimation task.
+- [Stack-Pointer Networks for Dependency Parsing.](https://aclweb.org/anthology/papers/P/P18/P18-1130/)<br/>
+  Xuezhe Ma, Zecong Hu, Jingzhou Liu, Nanyun Peng, Graham Neubig, Eduard Hovy.<br/>
+  *Annual Meeting of the Association for Computational Linguistics (ACL)*, 2018.
 
 ## this blog
 

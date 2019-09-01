@@ -92,14 +92,19 @@
     let pathIndent,
         topOffset = 0;
 
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
     tocItems.forEach(function(item) {
       const x = item.anchor.offsetLeft - 5,
             height = item.anchor.offsetHeight;
       const y = topOffset;
 
       const parent = item.item.parentNode;
+      
       if (!(parent.classList.contains("section-nav") ||
             parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
         item.pathStart = 0;
         item.pathEnd = 0;
         return;
@@ -110,11 +115,11 @@
         item.pathStart = 0;
       } else {
         // Draw an additional line when there's a change in
-        // indent levels
+        // indent levels.
         if (pathIndent !== x) path.push('L', pathIndent, y);
         path.push('L', x, y);
 
-        // Set the current path so that we can measure it
+        // Set the current path so that we can measure it.
         tocPath.setAttribute('d', path.join(' '));
         item.pathStart = tocPath.getTotalLength() || 0;
 
@@ -134,7 +139,7 @@
 
   function setActivePath(index) {
     // Specify the visible path or hide the path altogether
-    // if there are no visible items
+    // if there are no visible items.
     if (index !== null) {
       const pathStart = tocItems[index].pathStart;
       const pathEnd = tocItems[index].pathEnd;
@@ -142,12 +147,14 @@
         // no-op
       } else {
         tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
         tocPath.setAttribute(
           'stroke-dasharray',
-          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + pathLength);
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
         tocPath.setAttribute('opacity', 1);
       }
-      // console.log(index, tocItems[index].href, pathStart, pathEnd);
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
     } else {
       tocPath.setAttribute('opacity', 0);
     }
@@ -336,8 +343,8 @@
 
   drawPath();
   updateActive(true);
-  window.addEventListener('resize', function() {
-    updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
   }, false);
   window.addEventListener('scroll', updateActive, false);
 </script>

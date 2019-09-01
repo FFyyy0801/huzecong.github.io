@@ -1,8 +1,9 @@
 ---
 navlevel: header
 navtitle: About
-title: "About"
-layout: page
+title:    "Zecong Hu"
+subtitle: ""
+layout:   page
 ---
 
 <style>
@@ -10,11 +11,9 @@ layout: page
   p { margin-top: 20px !important; }
 </style>
 
-## me
+## about me
 
-**<a href="/CV_Zecong-HU.pdf" target="_blank">Curriculum Vitae</a>**
-
-Zecong Hu (Chinese: 胡泽聪)
+Zecong Hu (Chinese: 胡泽聪), **<a href="/CV_Zecong-HU.pdf" target="_blank">Curriculum Vitae</a>**
 
 **Education:**
 
@@ -33,7 +32,7 @@ Zecong Hu (Chinese: 胡泽聪)
 - Outstanding Graduate Award @ Tsinghua University, 2018
 - 1st place @ Bloomberg CodeCon, 2019
 
-**Projects**:
+**Projects:**
 
 - [Texar-PyTorch](https://github.com/asyml/texar-pytorch): An open-source toolkit for machine learning and text generation.
 - [MercuryJson](https://github.com/Somefive/MercuryJson): Super-fast JSON parsing with SIMD and multi-threading.
@@ -51,7 +50,7 @@ Zecong Hu (Chinese: 胡泽聪)
   Xuezhe Ma, Zecong Hu, Jingzhou Liu, Nanyun Peng, Graham Neubig, Eduard Hovy.<br/>
   *Annual Meeting of the Association for Computational Linguistics (ACL)*, 2018.
 
-## this blog
+## about this blog
 
 - diaries about my life in college (in Chinese)
 - tech blogs & research notes

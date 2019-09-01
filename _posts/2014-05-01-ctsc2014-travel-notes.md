@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "CTSC2014游记"
+title:      "CTSC2014 游记"
 date:       2014-05-01 21:01:00 +0800
 categories: diary
 locale:     zh-Hans

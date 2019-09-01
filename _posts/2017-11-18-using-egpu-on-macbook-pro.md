@@ -1,6 +1,6 @@
 ---
 layout:         post
-title:          "在MacBook Pro上配置使用外置显卡"
+title:          "在 MacBook Pro 上配置使用外置显卡"
 date:           2017-11-18 13:42:05 -0400
 categories:     tech
 locale:         zh-Hans

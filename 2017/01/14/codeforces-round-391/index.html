@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Codeforces Round #391 - Zecong Hu&#39;s blog</title>
+  <meta name="description" content="转眼之间已经到了大三，距退役已经三年了。考完期末考试，正好有一场 CF，抱着做康复训练的心态参加了比赛。 结果自然是惨不忍睹……虽然是和同学开黑，却也无济于事。写了5道题，最后只过了两道。大概已经不适合快节奏地写代码了吧。 但不管怎么说，这次的题目还是挺有意思的。而且我们的做法和官方做法有些差别，自认为也是很有意...">
+
+  
+  <link rel="stylesheet" href="/assets/styles/core.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/fontello.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/highlighting/default.css?v=20191121014911">
+
+  <link rel="canonical" href="http://zecong.hu/2017/01/14/codeforces-round-391/">
+  <link rel="alternate" type="application/rss+xml" title="Zecong Hu&#39;s blog" href="/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX: {
+        equationNumbers: {
+          autoNumber: "AMS"
+        }
+      },
+      tex2jax: {
+        inlineMath: [ ['$','$'], ['\\(', '\\)'] ],
+        displayMath: [ ['$$','$$'] ],
+        processEscapes: true,
+      }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  
+
+  
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48327586-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+
+  <main class="page-content" aria-label="Content">
+    
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#a">A</a></li>
+<li class="toc-entry toc-h2"><a href="#b">B</a></li>
+<li class="toc-entry toc-h2"><a href="#c">C</a></li>
+<li class="toc-entry toc-h2"><a href="#d">D</a></li>
+<li class="toc-entry toc-h2"><a href="#e">E</a></li>
+</ul>
+      </div>
+    </div>
+    
+
+    <div class="wrapper">
+      <nav class="site-nav">
+  
+  
+  	
+  	<a class="page-link" href="/" >About</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/en/index.html" >Articles</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/cn/index.html" >文章列表</a>
+  	
+  
+  	
+  
+  	
+  
+</nav>
+
+
+
+<article class="post" lang="zh-Hans" itemscope itemtype="http://schema.org/BlogPosting" >
+
+  <header class="post-header">
+  <a class="site-title" href="/">
+  	
+      Zecong Hu&#39;s blog
+    
+  </a>
+  <h1 class="post-title" itemprop="name headline">Codeforces Round #391</h1>
+</header>
+
+
+
+
+  <div class="post-content" itemprop="articleBody">
+    <p>转眼之间已经到了大三，距退役已经三年了。考完期末考试，正好有一场 CF，抱着做康复训练的心态参加了比赛。</p>
+
+<p>结果自然是惨不忍睹……虽然是和同学开黑，却也无济于事。写了5道题，最后只过了两道。大概已经不适合快节奏地写代码了吧。</p>
+
+<p>但不管怎么说，这次的题目还是挺有意思的。而且我们的做法和官方做法有些差别，自认为也是很有意思的思路。</p>
+
+<!--more-->
+
+<h2 id="a">A</h2>
+
+<p>没啥好说的。把计数的数组开成了 <code class="highlighter-rouge">char</code>，贡献了一次 WA。</p>
+
+<h2 id="b">B</h2>
+
+<p>经典题。以各种不同的方式犯傻，一共错了3次。</p>
+
+<h2 id="c">C</h2>
+
+<p>大意是，问有多少个双射 $f$ ，满足对于每个多重集 $S_i$ ， $S_i=f(S_i)$ 。</p>
+
+<p>其实就是对于一种元素 $x$ ，在每个多重集中，其出现次数应当等于 $f(x)$ 的出现次数。可以依次把元素划分成若干等价类，答案即等价类大小的阶乘的乘积。</p>
+
+<p>问题在于如何求出等价类。我们思考了各种方法，最后猜测，说不定是一个看上去很暴力，但其实复杂度可以接受的方法。于是就有了下面这个方法：</p>
+
+<p>用一个 <code class="highlighter-rouge">vector&lt;pair&lt;int, int&gt;&gt;</code> 描述元素 $x$ ：每个二元组 $(i,k)$ 代表 $S_i$ 中 $x$ 出现了 $k$ 次，如果 $k=0$ 那么不把这个二元组加入 vector。这样一来所有元素的 vector 长度之和是 $O(\sum{g_i})$ 的。之后要做的就是统计有多少不同的 vector 了。最直观的方法是排序之后扫描，实际上直接对这些 vector 进行排序复杂度也是可以接受的，但考场上没有想明白，就用了哈希的方法。有意思的是，第一次提交只使用了单关键字，之后惨遭 Hack……被迫改成了双关键字。</p>
+
+<p>然而最后数组开小了 RE 了……</p>
+
+<p>最后证明一下排序的复杂度，其实是 $O(n\log n\cdot d)$ ，其中 $d$ 为 vector 的期望长度。这个长度其实是 $O(\sum g_i/n)$ ，所以复杂度就是 $O\left((\sum g_i)\log n\right)$ 。</p>
+
+<h2 id="d">D</h2>
+
+<p>最后只剩15分钟的时候才开始想这题，还是没能在比赛结束前通过。</p>
+
+<p>其实很简单，因为 $n\leq 75$ ，算一算就知道合法分割里最大的数不超过20。因此可以直接状压 DP，状态 $f[i][S]$ 表示前 $i$ 个01，出现数字集合为 $S$ 时的方案数，状态空间 $O(n\cdot2^{20})$ 。而至于转移，两个切割点之间的部分，除去前导零之后长度必然不超过6，而全部为0时不转移；故转移是 $O(1)$ 的。</p>
+
+<h2 id="e">E</h2>
+
+<p>这题非常有意思。</p>
+
+<p>定义 $f_r(n)$ 如下：</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align*}
+f_0(n) & = \sum_{u\cdot v=n}\left[\gcd(u,v)=1\right] \\
+f_{r+1}(n) & = \sum_{u\cdot v=n}\frac{f_r(u)+f_r(v)}{2}
+\end{align*} %]]></script>
+
+<p>有 $q$ 个询问，每次给定 $r$ 和 $n$ ，求 $f_r(n)$ 。所有范围均为 $10^6$ 。</p>
+
+<p>可以发现，记 $k$ 为 $n$ 的质因子个数，那么 $f_0(n)=2^k$ 。这是因为每个质因子要么全部属于 $u$ ，要么全部属于 $v$ 。</p>
+
+<p>而 $f_{r+1}$ 的式子可以改写如下：</p>
+
+<script type="math/tex; mode=display">f_{r+1}(n) = \sum_{d\mid n}f_r(d) = \sum_{d\mid n}f_r(d)\cdot 1</script>
+
+<p>记 $1(n)$ 为常数函数 $1(n)=1$ ，那么可以将上式表示为 Dirichlet 卷积的形式：</p>
+
+<script type="math/tex; mode=display">f_{r+1}=f_r\ast 1=f_0*1^r</script>
+
+<p>和一般卷积一样，Dirichlet 卷积也满足结合律。因此我们研究 $1^r$ 的表达式。</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align*}
+1^2(n) & = (1 \ast 1)(n) \\
+ & = \sum_{d\mid n}1\cdot 1 \\
+1^3(n) & = (1^2 \ast 1)(n) \\
+ & = \sum_{d_2\mid n}\left(\sum_{d_1\mid d_2}1\cdot 1\right)\cdot 1 \\
+ & \cdots \\
+1^r(n) & = \sum_{d_1\mid d_2\mid \cdots\mid d_{r-1}\mid n}1
+\end{align*} %]]></script>
+
+<p>换句话说，即求长度为 $r-1$ 的序列 $d_1,\ldots,d_{r-1}$ 的方案数，其中序列满足 $d_i\mid d_{i+1}$ ， $d_{r-1}\mid n$ 。</p>
+
+<p>记 $n$ 的质因数分解为 $n=\prod p_i^{k_i}$ ，仅考虑一个质因子 $p_i$ ，那么 $d_1,\ldots,d_{r-1}$ 的每个数所包含的 $p_i$ 的次数都不应大于 $k_i$ ，且前一个数的次数不应大于后一个数的次数。问题就变成了：求长度为 $r-1$ 且最大数不超过 $k_i$ 的非负非降序列的方案数。用隔板法可以知道方案数为</p>
+
+<script type="math/tex; mode=display">\binom{k_i+r-1}{r-1}</script>
+
+<p>那么</p>
+
+<script type="math/tex; mode=display">1^r(n)=\prod_i \binom{k_i+r-1}{r-1}</script>
+
+<script type="math/tex; mode=display">f_{r}(n) = (f_0 \ast 1^{r-1})(n) = \sum_{d\mid n}f_0(d)\cdot 1^{r-1}\left(\frac{n}{d}\right)</script>
+
+<p>至此，只要用筛法预处理出最小质因子，即可在 $O(\tau(n))$ （因子数）的时间内回答一个询问。但这还不够快（比赛时交的这个做法，TLE 在了 Final Test 的第52个点……）。</p>
+
+<p>由于 $d$ 和 $\frac{n}{d}$ 都是 $n$ 的因子，记 $d$ 的质因数分解为 $d=\prod{p_i^{q_i}}$ ，那么 $q_i\leq k_i$ ，而且 $\frac{n}{d}=\prod{p_i^{k_i-q_i}}$ 。进而我们可以将 $f_0(d)$ 表示如下：</p>
+
+<script type="math/tex; mode=display">f_0(d) = \prod_i (1+[q_i>0])</script>
+
+<p>带入 $f_r$ 的式子得到</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align*}
+f_r(n) & = \sum_{d\mid n}\left(\prod_i (1+[q_i>0])\right)\left(\prod_i \binom{k_i-q_i+r-1}{r-1}\right) \\
+ & = \sum_{d\mid n}\prod_i (1+[q_i>0])\binom{k_i-q_i+r-1}{r-1} \\
+ & = \prod_i\sum_{q_i=0}^{k_i} (1+[q_i>0])\binom{k_i-q_i+r-1}{r-1}
+\end{align*} %]]></script>
+
+<p>因此只要对每个质因子单独计算就可以了。复杂度骤降为 $O(\log n)$ 。</p>
+
+<p>发现了什么吗=·=这个函数是一个积性函数……如果一开始就意识到这一点的话，整个推导其实非常简单，根本不需要考虑什么 Dirichlet 卷积的结合性……</p>
+
+<p>虽然绕了很大的弯路，但这个思路还是挺有趣的😂</p>
+
+  </div>
+
+  <footer class="post-footer">
+    <div class="post-meta">
+       <time datetime="2017-01-14T05:43:00+00:00" itemprop="datePublished">Jan 14, 2017</time> 
+      
+    </div>
+
+    
+  </footer>
+
+  
+  <div id="disqus_thread"></div>
+<script>
+  var disqus_config = function () {
+    this.page.url = 'http://zecong.hu/2017/01/14/codeforces-round-391/';
+    this.page.identifier = 'http://zecong.hu/2017/01/14/codeforces-round-391/';
+  };
+
+  (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = 'https://huzecong-blog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+    </div>
+    <script type="text/javascript">
+  (function () {
+    var resize = function () {
+      this.width = 0.5 * (this.naturalWidth || this.width);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".half-size, .retina2x"), function(el) {
+      if (el.naturalWidth) {
+        resize.call(el);
+      } else {
+        el.onload = resize;
+      }
+    });
+  })();
+</script>
+
+  </main>
+
+  
+<script type="text/javascript">
+  // Show tooltips for footnotes.
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /("?&nbsp;<a href="#fnref:.+?" class="reversefootnote">↩(<sup>.*?<\/sup>)*<\/a>)+/s;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      if (footnotes[index] === undefined) continue;
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        size: 'large',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+
+
+
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  let tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        topOffset = 0;
+
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            height = item.anchor.offsetHeight;
+      const y = topOffset;
+
+      const parent = item.item.parentNode;
+      
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels.
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it.
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      topOffset += height;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items.
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      if (pathEnd === 0) {
+        // no-op
+      } else {
+        tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
+        tocPath.setAttribute(
+          'stroke-dasharray',
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
+        tocPath.setAttribute('opacity', 1);
+      }
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+    // Compute heights of each item after expanding here, because `scrollHeight`
+    // does not take into account inner height of nested non-expanded lists that
+    // will also be expanded next.
+    const expandedHeights = Array(tocItems.length).fill(0);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = Infinity;
+      let accumulateHeight = 0;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          if (item.subList !== null)
+            accumulateHeight += item.subList.scrollHeight;
+          expandedHeights[i] = accumulateHeight;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    const addHeights = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          if (item.subList !== null) {
+            itemsToRemove.push(item.subList);
+          }
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          if (item.subList !== null) {
+            itemsToAdd.push(item.subList);
+            addHeights.push(expandedHeights[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      addHeights: addHeights,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems() {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    // if (ticket + 1 !== transitionCounter) {
+    //   transitionTicket = ticket + 1;
+    //   return;
+    // }
+
+    // Use the latest active index.
+    const index = currentActiveIndex;
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      // if (ticket + 1 === transitionCounter) {
+        // Only perform callback on final ticket.
+        // drawPath();
+        setActivePath(index);
+      // }
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = itemChanges.addHeights;
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      drawPath();
+      setActivePath(index);
+    });
+  }
+
+  function updateActive(event, forceRedraw = false) {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    for (; index < tocItems.length; ++index) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight)))) {
+        break;
+      }
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index || forceRedraw) {
+      // console.log("redraw", currentActiveIndex, index, forceRedraw);
+      currentActiveIndex = index;
+
+      // setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems();
+      });
+    }
+  }
+
+  drawPath();
+  updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+
+
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="social-links">
+      
+      <a class="social-link social-github" href="https://github.com/huzecong">
+        <i class="icon-github"></i>
+      </a>
+      
+      
+      
+      <a class="social-link social-rss" href="/feed.xml" target="_blank">
+        <i class="icon-rss"></i>
+      </a>
+    </div>
+    <div class="credits">
+      KAGAMI, made with <i class="icon-heart"></i> by Kamikat
+    </div>
+  </div>
+
+</footer>
+
+
+</body>
+
+</html>

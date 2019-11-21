@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>在 MacBook Pro 上配置使用外置显卡 - Zecong Hu&#39;s blog</title>
+  <meta name="description" content="在听说 macOS High Sierra 官方支持 eGPU 之后，便一直想买一块显卡，以弥补我用 Mac 5年以来没怎么玩过大型 3D 游戏的遗憾，顺带炼一炼丹。趁着双十一这个借口，狠下心来买了一个 eGPU 盒子和一块 1080 Ti。 不过配置显卡的过程及其复杂，为了方便他人，同时备自己不时之需，在此记录...">
+
+  
+  <link rel="stylesheet" href="/assets/styles/core.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/fontello.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/highlighting/default.css?v=20191121014911">
+
+  <link rel="canonical" href="http://zecong.hu/2017/11/18/using-egpu-on-macbook-pro/">
+  <link rel="alternate" type="application/rss+xml" title="Zecong Hu&#39;s blog" href="/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  
+
+  
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX: {
+        equationNumbers: {
+          autoNumber: "AMS"
+        }
+      },
+      tex2jax: {
+        inlineMath: [ ['$','$'], ['\\(', '\\)'] ],
+        displayMath: [ ['$$','$$'] ],
+        processEscapes: true,
+      }
+    });
+  </script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  
+
+  
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48327586-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+
+  <main class="page-content" aria-label="Content">
+    
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#配置与环境">配置与环境</a></li>
+<li class="toc-entry toc-h2"><a href="#在-windows-上配置">在 Windows 上配置</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#使用内置显示器">使用内置显示器</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#第一步设置启动盘">第一步：设置启动盘</a></li>
+<li class="toc-entry toc-h4"><a href="#第二步创建-usb-引导盘">第二步：创建 USB 引导盘</a></li>
+<li class="toc-entry toc-h4"><a href="#第三步执行-gpu-switch">第三步：执行 gpu-switch</a></li>
+<li class="toc-entry toc-h4"><a href="#第四步通过-efi-boot-引导">第四步：通过 EFI Boot 引导</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#在-macos-上配置">在 macOS 上配置</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#使用内置显示器-1">使用内置显示器</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#关于-thunderbolt-2-的性能损失">关于 Thunderbolt 2 的性能损失</a></li>
+<li class="toc-entry toc-h2"><a href="#参考链接">参考链接</a></li>
+</ul>
+      </div>
+    </div>
+    
+
+    <div class="wrapper">
+      <nav class="site-nav">
+  
+  
+  	
+  	<a class="page-link" href="/" >About</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/en/index.html" >Articles</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/cn/index.html" >文章列表</a>
+  	
+  
+  	
+  
+  	
+  
+</nav>
+
+
+
+<article class="post" lang="zh-Hans" itemscope itemtype="http://schema.org/BlogPosting" >
+
+  <header class="post-header">
+  <a class="site-title" href="/">
+  	
+      Zecong Hu&#39;s blog
+    
+  </a>
+  <h1 class="post-title" itemprop="name headline">在 MacBook Pro 上配置使用外置显卡</h1>
+</header>
+
+
+
+
+  <div class="post-content" itemprop="articleBody">
+    <p>在听说 macOS High Sierra 官方支持 eGPU 之后，便一直想买一块显卡，以弥补我用 Mac 5年以来没怎么玩过大型 3D 游戏的遗憾，顺带炼一炼丹。趁着双十一这个借口，狠下心来买了一个 eGPU 盒子和一块 1080 Ti。</p>
+
+<p>不过配置显卡的过程及其复杂，为了方便他人，同时备自己不时之需，在此记录一下。</p>
+
+<p>声明：这里记载的方法是我综合网上各教程得到的，可能只适用于我自己的机型和配件，仅供参考。</p>
+
+<!--more-->
+
+<h2 id="配置与环境">配置与环境</h2>
+
+<ul>
+  <li><strong>主机：</strong>2015款 MBP 15’，带 AMD R9 M370X 独显，以及 Intel Iris Pro 集显</li>
+  <li><strong>系统：</strong>macOS High Sierra 10.13.1 / Windows 10 Fall Creator’s Update (10.0.10586)</li>
+  <li><strong>eGPU盒：</strong>Sonnet eGPF Breakaway Box (GPU-350W-TB3Z)</li>
+  <li><strong>GPU：</strong>EVGA GeForce GTX 1080 Ti SC2 (11G-P4-6593-KR)</li>
+</ul>
+
+<p>之所以选择这个盒子，是因为苹果官方提供的开发者版 eGPU 就是基于这个盒子的。毕竟官方“认证”，用着放心一些。我买的是 350W 的盒子（因为便宜），只提供了一个 8pin 和一个 6pin 电源接口，因此必须使用同样使用这种接口的 GPU。</p>
+
+<p>另外，由于这个盒子使用 Thunderbolt 3 接口且只附赠 TB3 公对公连接线，因此还需要自行购买转接器。市面上只有 TB3 公对 TB2 母的转接器，不过因为是双向的，可以搭配 TB2 公对公连接线使用。</p>
+
+<h2 id="在-windows-上配置">在 Windows 上配置</h2>
+
+<p>不得不说，Windows 对各类硬件的支持还是完善得多。在 Windows 上配置非常简单，由于 Boot Camp 自带 TB 驱动，eGPU 盒子即插即用，只要上 NVIDIA 官网下最新驱动安装即可。</p>
+
+<p>不过这里有一个很坑的地方：MBP 的两个 TB2 接口是不一样的。具体有什么差别我也没查到，但是我的盒子只有插在<strong>靠近电源一侧</strong>的接口才可以正常工作。如果插在另一个接口，虽然可以正常识别，但是 GeForce Experience 在驱动安装完成后仍然会提示需要安装驱动，无法使用。</p>
+
+<h3 id="使用内置显示器">使用内置显示器</h3>
+
+<p>如果使用外接显示器的话，至此已经可以正常使用了。但是我们可以通过进一步的配置，让内置显示器使用外接显卡渲染。这一部分的原理似乎是，在 Mac 启动时会检测是否存在独立显卡，如果存在则不会使用集成显卡。但是为了使用 NVIDIA Optimus 来让 GPU 为内置显示器渲染，则需要让集成显卡保持运行。</p>
+
+<p>具体描述请参见链接<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>。</p>
+
+<h4 id="第一步设置启动盘">第一步：设置启动盘</h4>
+
+<p>这一步需要在 macOS 中完成。在 System Preferences（系统偏好设置） &gt; Startup Disk（启动盘）中，选择 Windows BOOTCAMP 分区作为启动盘，并重启。</p>
+
+<p>如果选项中没有 BOOTCAMP 分区，可能是因为第三方 NTFS 驱动（比如我使用的 Turexa NTFS）挂载了分区。以 Turexa NTFS 为例，在其设置页面中的 Volumes 页选择 BOOTCAMP 分区，勾选“Disable Turexa NTFS”，并在 Disk Utility 中卸载再挂载分区即可。</p>
+
+<h4 id="第二步创建-usb-引导盘">第二步：创建 USB 引导盘</h4>
+
+<p>这一步是为了假装是 macOS 启动。你需要一个容量不超过 4GB 的U盘，并将其格式化为 FAT 格式。如果手头只有大容量U盘，可以通过以下操作来划分一块 4GB 的分区：</p>
+
+<ol>
+  <li>以管理员权限运行 <code class="highlighter-rouge">diskpart</code>；</li>
+  <li>执行 <code class="highlighter-rouge">list disk</code>，记下U盘对应的磁盘编号（假设为 Disk 1）；</li>
+  <li>执行 <code class="highlighter-rouge">select disk 1</code>；</li>
+  <li>执行 <code class="highlighter-rouge">clean</code>，这将抹除U盘上所有的数据，并删除分区表；</li>
+  <li>执行 <code class="highlighter-rouge">create partition primary size=4000</code>，这将创建一个 4GB 的主分区；这一步操作后系统可能会弹出对话框询问是否需要格式化，关闭即可；</li>
+  <li>执行 <code class="highlighter-rouge">format fs=fat quick</code>，这将快速格式化分区为 FAT 格式；</li>
+  <li>执行 <code class="highlighter-rouge">assign letter = D</code>，这将为分区分配盘符 D ，以访问文件系统。</li>
+</ol>
+
+<p>当然，更简单的办法应该是在 macOS 下使用 Disk Utility（磁盘工具）完成上述操作。</p>
+
+<p>之后，下载 <a href="https://github.com/0xbb/apple_set_os.efi/releases"><code class="highlighter-rouge">apple_set_os.efi</code></a>。在U盘根目录下创建目录 <code class="highlighter-rouge">/EFI/Boot</code>，并将下载的文件重命名为 <code class="highlighter-rouge">bootx64.efi</code> 放在目录中。</p>
+
+<h4 id="第三步执行-gpu-switch">第三步：执行 <code class="highlighter-rouge">gpu-switch</code></h4>
+
+<p>下载 <a href="https://github.com/0xbb/gpu-switch"><code class="highlighter-rouge">gpu-switch</code></a> 的 Windows 版本。它的作用是在下次启动系统时使用集成显卡。以管理员权限执行 <code class="highlighter-rouge">integrated.bat</code> 即可。</p>
+
+<h4 id="第四步通过-efi-boot-引导">第四步：通过 EFI Boot 引导</h4>
+
+<p>重新启动，在开机时按住左 option 键，选择 EFI Boot 启动。此时内置显示屏就是外接显卡渲染的啦。</p>
+
+<p>为了验证这一点，可以在桌面右键菜单中打开 NVIDIA Control Panel。如果右键菜单中没有这一项，或者点击后弹出“没有使用 NVIDIA GPU 的显示器”，则说明配置不成功。</p>
+
+<h2 id="在-macos-上配置">在 macOS 上配置</h2>
+
+<p>现在 macOS 上已经有了 NVIDIA 的官方驱动支持。目前最新的 WebDriver 版本号为 378.10.10.10.20.107，可以在 <a href="http://www.nvidia.com/download/driverResults.aspx/126538/en-us">NVIDIA 官方网站</a>上下载。同时需要安装对应的 CUDA 驱动。</p>
+
+<p>如果要在 NVIDIA 官网搜索最新版本的 macOS 驱动，则需要在产品系列选择“GeForce 600 Series”，操作系统选择“Show all Operating Systems”，然后选择对应的 macOS 系统版本。这是因为该驱动目前只为该系列显卡提供正式支持，对较新的显卡的支持还在 beta 阶段。</p>
+
+<p>需要注意的是，安装驱动时需要开启 System Integrity Protection（SIP）。具体方法是在开机进入 macOS 系统前按住 Cmd+R 进入恢复模式，打开命令行执行 <code class="highlighter-rouge">csrutil enable</code>。同理，执行 <code class="highlighter-rouge">csrutil disable</code>则可以关闭 SIP。如果没有手动关闭过 SIP的话，默认状态下 SIP是开启的。</p>
+
+<p>为了使用外置 GPU，还需要做一些附加的配置。下载 <a href="https://egpu.io/wp-content/uploads/wpforo/attachments/3/3858-nvidia-egpu-v2-1013-1.zip">NVIDIAEGPUSupport</a>，并在<strong>关闭 SIP</strong> 的情况下安装。详细信息可以参考连接<sup id="fnref:3"><a href="#fn:3" class="footnote">2</a></sup>。</p>
+
+<p>不过这时，如果在启动时连接了 eGPU，则进入登录界面后会花屏。如果在启动后连接 eGPU，在系统信息中的显卡信息处只能看到“NVIDIA Chip Model”，并不会显示具体型号。解决方法和 Windows 部分使用内置显示器的方法类似：将启动盘设为 macOS 分区，执行 macOS 下的 <code class="highlighter-rouge">gpu-switch</code>，然后重启时从 EFI Boot 启动。此时可以正常进入登录界面，登录后可以使用 <a href="http://cuda-z.sourceforge.net/">CUDA-Z</a> 检测 GPU。</p>
+
+<p>需要强调的一点是：目前 macOS <strong>不完全支持热拔插</strong>。在连接 eGPU 后断开可能导致黑屏、重启、显示“五国语言”错误界面等。</p>
+
+<h3 id="使用内置显示器-1">使用内置显示器</h3>
+
+<p>至此，虽然使用了 Windows 部分的方法，但仍然没有让内置显示器用上 eGPU。在关于本机的页面中，Built-in Display 下面显示的仍然是 Intel Iris Pro 内置显卡。</p>
+
+<p>链接<sup id="fnref:2"><a href="#fn:2" class="footnote">3</a></sup>中给出了一种方法，需要用到一个 HDMI 的“空插头”。因为手头没有这种插头，我没有尝试，等以后试过了再更新这一部分。</p>
+
+<h2 id="关于-thunderbolt-2-的性能损失">关于 Thunderbolt 2 的性能损失</h2>
+
+<p>在整个显卡→PCI-E→TB3→TB2→主机的数据通道中，各部分的理论最大带宽为：</p>
+
+<ul>
+  <li>PCI-E：126Gbps</li>
+  <li>TB3：32Gbps</li>
+  <li>TB2：16Gbps</li>
+</ul>
+
+<p>因此 TB2 成为了瓶颈。实际测试在 macOS 下，传输速度约为 1200MB/s，也就是 9.6Gbps。如果使用内置显示器的话，速度会更低。根据链接<sup id="fnref:4"><a href="#fn:4" class="footnote">4</a></sup>中的测试，在 TB2 连接下使用 GTX 1080 大概会有 40% 的性能损失，使用外置显示器可以将损失减小到 20%。</p>
+
+<p>另外，链接<sup id="fnref:5"><a href="#fn:5" class="footnote">5</a></sup>中指出性能损失可能也部分来自于 <code class="highlighter-rouge">apple_set_os.efi</code>，并给出了一个解决方法。我没有仔细阅读，大家可以自行参考。</p>
+
+<p>就游戏体验来说，即便只有60%的性能，大部分游戏也绰绰有余了。在 Windows 下使用 1920x1600 分辨率运行的 NieR:Automata，在开启最高画质、关闭垂直同步时仍然较为流畅（主观感受，没有实际测过帧率）。对我来说大概够了。</p>
+
+<p>另一方面，对于炼丹而言，计算耗时应该远高于传输耗时，因此瓶颈影响不大。不过这也只是我的猜想，还没有实测过。</p>
+
+<h2 id="参考链接">参考链接</h2>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p><a href="https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/">https://egpu.io/forums/mac-setup/how-to-keep-mbps-irisiris-pro-activated-when-booting-into-windows-boot-camp/</a> <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p><a href="https://egpu.io/forums/mac-setup/wip-nvidia-egpu-support-for-high-sierra/">https://egpu.io/forums/mac-setup/wip-nvidia-egpu-support-for-high-sierra/</a> <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p><a href="https://egpu.io/how-to-egpu-accelerated-internal-display-macos/">https://egpu.io/how-to-egpu-accelerated-internal-display-macos/</a> <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:4">
+      <p><a href="https://egpu.io/forums/mac-setup/pcie-slot-dgpu-vs-thunderbolt-3-egpu-internal-display-test/">https://egpu.io/forums/mac-setup/pcie-slot-dgpu-vs-thunderbolt-3-egpu-internal-display-test/</a> <a href="#fnref:4" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:5">
+      <p><a href="https://egpu.io/forums/mac-setup/mbp-tb3-port-underperformance-16xxmibs-instead-of-22xxmibs-under-macos-or-windowsapple_set_os-efi/">https://egpu.io/forums/mac-setup/mbp-tb3-port-underperformance-16xxmibs-instead-of-22xxmibs-under-macos-or-windowsapple_set_os-efi/</a> <a href="#fnref:5" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div>
+
+  <footer class="post-footer">
+    <div class="post-meta">
+       <time datetime="2017-11-18T17:42:05+00:00" itemprop="datePublished">Nov 18, 2017</time> 
+      
+    </div>
+
+    
+  </footer>
+
+  
+  <div id="disqus_thread"></div>
+<script>
+  var disqus_config = function () {
+    this.page.url = 'http://zecong.hu/2017/11/18/using-egpu-on-macbook-pro/';
+    this.page.identifier = 'http://zecong.hu/2017/11/18/using-egpu-on-macbook-pro/';
+  };
+
+  (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = 'https://huzecong-blog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+    </div>
+    <script type="text/javascript">
+  (function () {
+    var resize = function () {
+      this.width = 0.5 * (this.naturalWidth || this.width);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".half-size, .retina2x"), function(el) {
+      if (el.naturalWidth) {
+        resize.call(el);
+      } else {
+        el.onload = resize;
+      }
+    });
+  })();
+</script>
+
+  </main>
+
+  
+<script type="text/javascript">
+  // Show tooltips for footnotes.
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /("?&nbsp;<a href="#fnref:.+?" class="reversefootnote">↩(<sup>.*?<\/sup>)*<\/a>)+/s;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      if (footnotes[index] === undefined) continue;
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        size: 'large',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+
+
+
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  let tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        topOffset = 0;
+
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            height = item.anchor.offsetHeight;
+      const y = topOffset;
+
+      const parent = item.item.parentNode;
+      
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels.
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it.
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      topOffset += height;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items.
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      if (pathEnd === 0) {
+        // no-op
+      } else {
+        tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
+        tocPath.setAttribute(
+          'stroke-dasharray',
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
+        tocPath.setAttribute('opacity', 1);
+      }
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+    // Compute heights of each item after expanding here, because `scrollHeight`
+    // does not take into account inner height of nested non-expanded lists that
+    // will also be expanded next.
+    const expandedHeights = Array(tocItems.length).fill(0);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = Infinity;
+      let accumulateHeight = 0;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          if (item.subList !== null)
+            accumulateHeight += item.subList.scrollHeight;
+          expandedHeights[i] = accumulateHeight;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    const addHeights = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          if (item.subList !== null) {
+            itemsToRemove.push(item.subList);
+          }
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          if (item.subList !== null) {
+            itemsToAdd.push(item.subList);
+            addHeights.push(expandedHeights[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      addHeights: addHeights,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems() {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    // if (ticket + 1 !== transitionCounter) {
+    //   transitionTicket = ticket + 1;
+    //   return;
+    // }
+
+    // Use the latest active index.
+    const index = currentActiveIndex;
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      // if (ticket + 1 === transitionCounter) {
+        // Only perform callback on final ticket.
+        // drawPath();
+        setActivePath(index);
+      // }
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = itemChanges.addHeights;
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      drawPath();
+      setActivePath(index);
+    });
+  }
+
+  function updateActive(event, forceRedraw = false) {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    for (; index < tocItems.length; ++index) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight)))) {
+        break;
+      }
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index || forceRedraw) {
+      // console.log("redraw", currentActiveIndex, index, forceRedraw);
+      currentActiveIndex = index;
+
+      // setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems();
+      });
+    }
+  }
+
+  drawPath();
+  updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+
+
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="social-links">
+      
+      <a class="social-link social-github" href="https://github.com/huzecong">
+        <i class="icon-github"></i>
+      </a>
+      
+      
+      
+      <a class="social-link social-rss" href="/feed.xml" target="_blank">
+        <i class="icon-rss"></i>
+      </a>
+    </div>
+    <div class="credits">
+      KAGAMI, made with <i class="icon-heart"></i> by Kamikat
+    </div>
+  </div>
+
+</footer>
+
+
+</body>
+
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>你所不知道的 template - Zecong Hu&#39;s blog</title>
+  <meta name="description" content="C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off. —— C++ 之父，Bjarne Stroustrup C++ 是一门非常强大而复杂的语...">
+
+  
+  <link rel="stylesheet" href="/assets/styles/core.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/fontello.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/highlighting/default.css?v=20191121014911">
+
+  <link rel="canonical" href="http://zecong.hu/2015/09/19/what-you-dont-know-about-templates/">
+  <link rel="alternate" type="application/rss+xml" title="Zecong Hu&#39;s blog" href="/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  
+
+  
+
+  
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48327586-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+
+  <main class="page-content" aria-label="Content">
+    
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#从基础开始">从基础开始</a></li>
+<li class="toc-entry toc-h2"><a href="#模板元编程">模板元编程</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#从斐波那契谈起">从斐波那契谈起</a></li>
+<li class="toc-entry toc-h3"><a href="#但是这又有什么用呢">但是这又有什么○用呢？</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#crtp">CRTP</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#无需-vtable-的编译时多态">无需 VTABLE 的编译时多态</a></li>
+<li class="toc-entry toc-h3"><a href="#通用基类">通用基类</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#sfinae">SFINAE</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#编译时自省">编译时自省</a></li>
+<li class="toc-entry toc-h3"><a href="#boostenable_if">boost::enable_if</a></li>
+<li class="toc-entry toc-h3"><a href="#type_traits">type_traits</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#总结">总结</a></li>
+<li class="toc-entry toc-h2"><a href="#参考文献">参考文献</a></li>
+</ul>
+      </div>
+    </div>
+    
+
+    <div class="wrapper">
+      <nav class="site-nav">
+  
+  
+  	
+  	<a class="page-link" href="/" >About</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/en/index.html" >Articles</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/cn/index.html" >文章列表</a>
+  	
+  
+  	
+  
+  	
+  
+</nav>
+
+
+
+<article class="post" lang="zh-Hans" itemscope itemtype="http://schema.org/BlogPosting" >
+
+  <header class="post-header">
+  <a class="site-title" href="/">
+  	
+      Zecong Hu&#39;s blog
+    
+  </a>
+  <h1 class="post-title" itemprop="name headline">你所不知道的 template</h1>
+</header>
+
+
+
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p>C makes it easy to shoot yourself in the foot; C++ makes it harder, but when you do it blows your whole leg off.</p>
+
+  <p>—— C++ 之父，Bjarne Stroustrup</p>
+</blockquote>
+
+<p>C++ 是一门非常强大而复杂的语言，而<strong>模板</strong>（template）则是其“主打功能”之一。可以说，没有了模板，C++ 就不会是 C++，它不会有现在这样的灵活性和可拓展性，也不会像现在这样因为过于复杂而受人诟病。</p>
+
+<p>本文将介绍 C++ 模板的一些较为少见但是非常强大的应用。为了读懂本文，你需要：</p>
+
+<ul>
+  <li>有基础的编程知识和经验；</li>
+  <li>能够看懂 C++ 代码；</li>
+  <li>对于未知的事物充满好奇心。</li>
+</ul>
+
+<p>如果你具备上面这些条件，那么就做好准备认识你所不知道的 template 吧！</p>
+
+<h2 id="从基础开始">从基础开始</h2>
+
+<p>为了照顾不太明白的读者，我们先很简单地讲一下什么是 C++ 的模板。已经了然于心的读者们可以选择再来复习一遍，或者跳过这一小节。</p>
+
+<p>在传统的 C 语言中，不同的函数不能有相同的名字。这个规定其实非常好理解，因为很多时候函数操作会依赖于特定的类型。但我们也没法排除有一些不依赖于类型的通用算法，如果要为每种类型都定义一个名字不同的函数，再在每个函数里实现一遍算法，岂不是很麻烦？</p>
+
+<p>于是 C++ 标准委员会（ISO C++ committee）就想，我们要在 C++ 里加入一个新功能，使得程序员可以写出不依赖于具体类型的<strong>泛型</strong>（generic）代码。这个新功能就是模板。在 C++ 中，我们可以通过如下语法定义一个模板函数：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="nf">max</span><span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">,</span> <span class="n">T</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">)</span> <span class="k">return</span> <span class="n">a</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>从函数名和函数的执行过程我们很容易推断出，它的作用就是找出并返回<code class="highlighter-rouge">a</code>和<code class="highlighter-rouge">b</code>中的较大值。但是这个<code class="highlighter-rouge">T</code>是个什么玩意儿呢？</p>
+
+<p>其实<code class="highlighter-rouge">T</code>是在代码第一行里定义的<code class="highlighter-rouge">class T</code>，它代表的是一个<em>任意的类型</em>。也就是说，这个函数接受两个类型相同的东西，并返回一个同样类型的东西。</p>
+
+<p>既然有了模板函数，我们也可以弄出一个模板类：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="kt">int</span> <span class="n">M</span><span class="p">,</span> <span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Matrix</span> <span class="p">{</span>
+<span class="nl">private:</span>
+	<span class="n">T</span> <span class="n">array</span><span class="p">[</span><span class="n">N</span><span class="p">][</span><span class="n">M</span><span class="p">];</span>
+<span class="nl">public:</span>
+	<span class="n">Matrix</span><span class="p">();</span>
+	<span class="k">static</span> <span class="n">Matrix</span> <span class="n">identityMatrix</span><span class="p">();</span>
+	<span class="n">T</span> <span class="o">&amp;</span><span class="n">elementAtIndex</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">array</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">];</span>
+	<span class="p">}</span>
+	<span class="k">const</span> <span class="n">T</span> <span class="o">&amp;</span><span class="n">elementAtIndex</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">array</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">];</span>
+	<span class="p">}</span>
+<span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+<p>注意到我们可以指定多个泛型的参数，而且这些参数还不一定得是<code class="highlighter-rouge">T</code>这样的<em>类型参数</em>——它还可以是<em>非类型参数</em>，如这里的整型<code class="highlighter-rouge">N</code>，甚至可以是嵌套的模板参数。</p>
+
+<p>这些非常简单的例子可以让我们略微感受到模板的强大之处：只要类型<code class="highlighter-rouge">T</code>可以拷贝构造、定义了大于运算符，就可以套用这个函数。如果我们有心，可以用模板实现一整套泛型的算法，并提供简单的借口。设想一下，当我们要给自定义的类型排序的时候，不需要手写快排，而定义比较操作符，直接调用一个模板函数即可；当我们要使用某些数据结构的时候，直接把我们的类名告诉模板类即可。</p>
+
+<p>事实上 C++ 的 STL 就是这样一个玩意儿。STL 的全称是 Standard Template Library，里面用模板实现了各种泛型的算法和数据结构。随叫随到，即写即用，从此无心造轮子，管他开不开 O2。</p>
+
+<p>限于篇幅原因，模板的基础知识只能介绍到这。有关模板的更多知识，推荐大家阅读这个网页：<a href="https://isocpp.org/wiki/faq/templates">https://isocpp.org/wiki/faq/templates</a>。</p>
+
+<h2 id="模板元编程">模板元编程</h2>
+
+<p>模板当然是个好东西，它非常之强大，可以完成原来写C代码时想都不敢想的功能。但问题也就在于它太强大了，就连当初设计模板的人也不知道它究竟有多么厉害。事实上，可以证明模板的这套语言本身就是图灵完备的，也就是说，光是使用模板，我们就可以在编译时完成一切计算。这就是所谓的<strong>模板元编程</strong>（template metaprogramming，TMP）。</p>
+
+<h3 id="从斐波那契谈起">从斐波那契谈起</h3>
+
+<p>如果要你用正常的 C++ 求斐波那契数列，你会怎么写？当然会是像下面这样：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">N</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+	<span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">];</span>
+</code></pre></div></div>
+
+<p>或者是直接写递归的版本：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="nf">fib</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>其实我们可以用模板来做：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">N</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">Fib</span> <span class="p">{</span>
+	<span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">Fib</span><span class="o">&lt;</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">+</span> <span class="n">Fib</span><span class="o">&lt;</span><span class="n">N</span><span class="o">-</span><span class="mi">2</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span>
+<span class="p">}</span> <span class="p">;</span>
+
+<span class="k">template</span> <span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">Fib</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span> <span class="p">{</span>
+	<span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span> <span class="p">;</span>
+
+<span class="k">template</span> <span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="n">Fib</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="p">{</span>
+	<span class="k">static</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+<p>我们在<code class="highlighter-rouge">Fib</code>类里定义了一个静态的常量<code class="highlighter-rouge">value</code>，代表第<code class="highlighter-rouge">N</code>个斐波那契数的值。<code class="highlighter-rouge">N = 0</code>和<code class="highlighter-rouge">N = 1</code>的两个模板特化是递归的边界条件，一般的情况则直接利用公式递归计算。整个计算过程都是在编译时完成的，而且由于模板的实例化机制，这个递归的过程还是记忆化的，即同一个斐波那契数不会被计算两次，计算的复杂度为 $O(N)$ 而非 $O(fibonacci(N))$ 。</p>
+
+<p>如果我们要使用第10个斐波那契数列的值，只要用<code class="highlighter-rouge">Fib&lt;10&gt;::value</code>就可以了。值得一提的是，由于计算过程需要在编译时完成，模板中的参数必须得是编译时就知晓其值的常量。</p>
+
+<p>另外，通常编译器会对模板的递归层数作限制，在<code class="highlighter-rouge">clang</code>编译器上默认是256层。可以使用<code class="highlighter-rouge">-ftemplate-depth=N</code>来将层数设为<code class="highlighter-rouge">N</code>，但太大的层数会使得编译器自己栈溢出……所以这玩意并没有什么○用。</p>
+
+<h3 id="但是这又有什么用呢">但是这又有什么○用呢？</h3>
+
+<p>虽说是节省了运行时间，但必须在编译时确定所有数值，加之<code class="highlighter-rouge">N</code>还不能太大，感觉上并没有什么○用。</p>
+
+<p>但TML可不光是编译时算数这么简单。下面将介绍两个TML在实际中的应用，请坐和放宽，准备打开新世界的大门。</p>
+
+<h2 id="crtp">CRTP</h2>
+
+<p>这个看上去超级高大上的缩写，全称其实是 Curiously Recurring Template Pattern<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>，直译过来就是“神奇递归模板模式”，一下就显得傻里傻气的了。</p>
+
+<p>为什么叫这个名字呢？我们先来看一段代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Derived</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="kt">void</span> <span class="n">polymorphism</span><span class="p">()</span> <span class="p">{</span>
+		<span class="k">static_cast</span><span class="o">&lt;</span><span class="n">Derived</span><span class="o">*&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">_poly</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="k">static</span> <span class="kt">void</span> <span class="n">static_poly</span><span class="p">()</span> <span class="p">{</span>
+		<span class="n">Derived</span><span class="o">::</span><span class="n">_static_poly</span><span class="p">();</span>
+	<span class="p">}</span>
+	<span class="c1">// Default implementation</span>
+	<span class="kt">void</span> <span class="n">_poly</span><span class="p">();</span>
+	<span class="k">static</span> <span class="n">_static_poly</span><span class="p">();</span>
+<span class="p">}</span> <span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Derived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span><span class="o">&lt;</span><span class="n">Derived</span><span class="o">&gt;</span> <span class="p">{</span>
+	<span class="kt">void</span> <span class="n">_poly</span><span class="p">();</span>
+<span class="c1">//	void _static_poly();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>嗯，<code class="highlighter-rouge">Base</code>类是一个正常的模板类，虽然内容有点不明觉厉。但<code class="highlighter-rouge">Derived</code>类是什么鬼？为啥能把自己作为父类的模板参数？这岂不是“我依赖于我爸依赖于我”的状况 = = ？</p>
+
+<p>然而这段代码是可以通过编译的合法代码。原因有二：</p>
+
+<ul>
+  <li>虽然<code class="highlighter-rouge">Base</code>需要了解<code class="highlighter-rouge">Derived</code>的定义，但其不直接或间接包含<code class="highlighter-rouge">Derived</code>类的实例，也即其大小不依赖于<code class="highlighter-rouge">Derived</code>；</li>
+  <li>模板类会在被使用时实例化，而此时<code class="highlighter-rouge">Base</code>类与<code class="highlighter-rouge">Derived</code>类的定义均已知晓；就此段代码而言，编译器可以检验<code class="highlighter-rouge">Derived</code>类是否包含<code class="highlighter-rouge">_poly()</code>和<code class="highlighter-rouge">_static_poly()</code>函数的定义，如果没有找到，则会在其父类<code class="highlighter-rouge">Base&lt;Derived&gt;</code>类中寻找。</li>
+</ul>
+
+<p>一般人在第一次看到这个玄学一般的用法时都会目瞪口呆不知所措。先不要惊讶，我们来看看用这种写法能做什么：</p>
+
+<h3 id="无需-vtable-的编译时多态">无需 VTABLE 的编译时多态</h3>
+
+<p>C++ 实现多态的方法是将类内所有的虚（virtual）函数存在一个被称为<code class="highlighter-rouge">VTABLE</code>的数组中，在运行时调用一个虚函数时，实际调用表中指向的函数。这个方法有个缺点，就是必须维护这么一个表，从而产生额外开销（overhead）。</p>
+
+<p>而利用 CRTP 则可以在实现多态的同时，省去这个表的开销。我们看上面那段代码，在<code class="highlighter-rouge">Base</code>类（下称基类）和<code class="highlighter-rouge">Derived</code>类（下称派生类）中都定义有<code class="highlighter-rouge">_poly()</code>（非虚）函数，理论上基类是访问不到派生类中的函数的。但是这里不一样，基类拥有额外的信息：派生类叫什么。所以基类在调用之前，将自己转换成了派生类。这个转换是可行的，因为事实上，自己本身就是自己的派生类（有点绕，感受一下）。这么一来，调用的就是派生类中的函数了。如果派生类中没有定义<code class="highlighter-rouge">_poly()</code>函数，则编译器会找到基类中的同名函数；如果定义了<code class="highlighter-rouge">_poly()</code>函数，则它会覆盖掉基类中的同名函数，故编译器会找到派生类中的函数。这样我们就在编译器实现了多态。</p>
+
+<p>不过 CRTP 的这个多态并非真正的多态。如果我们有一个派生类的实例，通过 CRTP，基类中定义的函数可以调用派生类中重载的“虚”函数。但如果我们的派生类以基类指针的形式存在，我们则无法通过其访问到派生类的虚函数。后者被成为运行时多态，是 CRTP 力不能及的。</p>
+
+<h3 id="通用基类">通用基类</h3>
+
+<p>有时候我们会遇到这样的问题：我们只有一个基类的指针，而我们要进行一次深拷贝，如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">Base</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="n">Derived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="n">AnotherDerived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span> <span class="p">{};</span>
+
+<span class="kt">void</span> <span class="nf">copy</span><span class="p">(</span><span class="n">Base</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">Base</span> <span class="o">*</span><span class="n">copy_p</span> <span class="o">=</span> <span class="k">new</span> <span class="o">???</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>于是我们懵逼了，这个<code class="highlighter-rouge">???</code>该填啥啊，写基类不对吧，写派生类也不知道是哪个啊，咋办？</p>
+
+<p>一个解决方式定义一个名为<code class="highlighter-rouge">clone()</code>的虚函数，然后在每个派生类中重载：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="k">virtual</span> <span class="n">Base</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span> <span class="p">;</span>
+<span class="k">struct</span> <span class="n">Derived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="k">virtual</span> <span class="n">Derived</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">Derived</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="k">struct</span> <span class="n">AnotherDerived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="k">virtual</span> <span class="n">AnotherDerived</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">AnotherDerived</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>这份代码可以正常运作，但显得十分不优美：每个类里都得写一遍，这样不仅有大量重复代码，还容易出错。</p>
+
+<p>我们来分析一下为什么需要这样写，问题似乎在于，我的基类不知道我到底是啥，所以我需要在派生类里定义虚函数。这不就是 CRTP 解决的问题吗？我们把代码改成下面这样<sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup>：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="k">virtual</span> <span class="n">Base</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Derived</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">BaseCRTP</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Base</span> <span class="p">{</span>
+	<span class="k">virtual</span> <span class="n">Base</span> <span class="o">*</span><span class="n">clone</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="k">new</span> <span class="n">Derived</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">Derived</span> <span class="k">const</span> <span class="o">&amp;&gt;</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">));</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">Derived</span> <span class="o">:</span> <span class="k">public</span> <span class="n">BaseCRTP</span><span class="o">&lt;</span><span class="n">Derived</span><span class="o">&gt;</span> <span class="p">{};</span>
+</code></pre></div></div>
+
+<p>假设我们有一个<code class="highlighter-rouge">Derived</code>类的实例，在经历了一些事情之后，它变成了<code class="highlighter-rouge">Base</code>类的指针。现在我们通过这个指针调用<code class="highlighter-rouge">clone()</code>函数，通过虚函数的机制，我们会找到<code class="highlighter-rouge">BaseCRTP&lt;Derived&gt;</code>类的<code class="highlighter-rouge">clone()</code>函数。此时我们已经知道了派生类的名字，也就可以完成深拷贝了。</p>
+
+<p>如果分析一下背后的原因，我们会发现，每次定义一个派生类，编译器都会实例化一份<code class="highlighter-rouge">BaseCRTP</code>出来。所以并没有什么神奇的，其实只是编译器帮我们生成了我们本应手写的代码而已。CRTP 的其他应用，比如实例计数器，也都是基于这个原理。</p>
+
+<h2 id="sfinae">SFINAE</h2>
+
+<p>又是一个高大上的缩写，不急，我们先把它展开了：全称为 Substitution failure is not an error<sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup>。这都不是一个词组了，而是一句话：替换失败不被视为编译错误。当替换失败时，编译器不报错，而只是将这个模板从待选的重载函数集中移除，不考虑失败的这一个模板而已。</p>
+
+<p>在实例化一个模板时，编译器需要把模板参数中的东西替换为实际的类型或值，然而替换是可能失败的，比如下面这个例子：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="nf">defined_foo</span><span class="p">(</span><span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">foo</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="nf">defined_foo</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="k">struct</span> <span class="n">Foo</span> <span class="p">{</span>
+	<span class="k">typedef</span> <span class="kt">int</span> <span class="n">foo</span><span class="p">;</span>
+<span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+<p>这里我们定义了两个版本的<code class="highlighter-rouge">defined_foo()</code>，接受不同的参数。<code class="highlighter-rouge">typename</code>关键字是为了消除歧义，告诉编译器<code class="highlighter-rouge">T::foo</code>绝壁是个类型名。由于是模板函数，编译器得做类型替换，这里就可能出现替换失败的情况，比如：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">defined_foo</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">defined_foo</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>第一行，<code class="highlighter-rouge">Foo</code>类中有<code class="highlighter-rouge">foo</code>类型，所以在第一个模板中替换成功，而在第二个模板中替换失败；第二行，<code class="highlighter-rouge">int</code>类型显然不包含别的类型，所以在第一个模板中替换失败，而在第二个模板中替换成功。这两个情况中，都是恰有一个重载的模板替换成功，都不会报错。</p>
+
+<p>看上去是非常自然而且简单的做法吧？你绝对想不到可以用这玩意儿做什么：</p>
+
+<h3 id="编译时自省">编译时自省</h3>
+
+<p>先说说什么是自省。子曰：“见贤思齐焉，见不贤而内<em>自省</em>也”，不过这和我们要讲的自省没有半毛钱关系。</p>
+
+<p>所谓自省，其实就是程序自己知道自己的情况。比如在 Python 中，程序可以在运行时查看自己的代码，获取某个类的名称、成员，甚至是实时增减成员。对于 C++ 这种强类型语言来说，这显然不现实。但通过 SFINAE，我们可以实现一定程度上的自省。</p>
+
+<p>上面的那个例子，其实就是某种自省。我们可以在编译时判断一个类是否满足某种条件，从而调用不同的函数。在 STL 中，有一个神秘的头文件叫<code class="highlighter-rouge">&lt;type_traits&gt;</code>（C++11 的新特性），其中包含了很多判断类型的类型的东西，如<code class="highlighter-rouge">is_array</code>、<code class="highlighter-rouge">is_class</code>等。这些东西其实是用 SFINAE 实现的模板类，其中包含一个名为<code class="highlighter-rouge">value</code>的成员，代表判断的值是真是假。</p>
+
+<p>这么说可能有些玄，我们来看一个具体的、真实存在的例子：</p>
+
+<h3 id="boostenable_if">boost::enable_if</h3>
+
+<p>先上代码再解释：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span><span class="o">&lt;</span><span class="kt">bool</span> <span class="n">Cond</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span> <span class="o">=</span> <span class="kt">void</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">enable_if_c</span>
+<span class="p">{</span> <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span> <span class="p">};</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">enable_if_c</span><span class="o">&lt;</span><span class="nb">false</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="p">{};</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Cond</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span> <span class="o">=</span> <span class="kt">void</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">enable_if</span> <span class="o">:</span> <span class="n">enable_if_c</span><span class="o">&lt;</span><span class="n">Cond</span><span class="o">::</span><span class="n">value</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="p">{};</span>
+
+<span class="c1">// === 我是分割线 ===</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">enable_if</span><span class="o">&lt;</span><span class="n">is_floating_point</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span>
+  <span class="nf">frobnicate</span><span class="p">(</span><span class="n">T</span> <span class="n">t</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">is_floating_point</code>也是<code class="highlighter-rouge">&lt;type_traits&gt;</code>里的东西，其作用正如其名。<code class="highlighter-rouge">enable_if</code>的实现是，如果第一个参数的条件为<code class="highlighter-rouge">true</code>，那么其中会包含一个<code class="highlighter-rouge">type</code>类型，为第二个参数的类型；否则不会有这个类型。拿分割线下的函数举例，如果第一个参数的条件，即<code class="highlighter-rouge">T</code>是浮点类型，为<code class="highlighter-rouge">false</code>，那么在使用这个函数时就会产生替换错误。所以<code class="highlighter-rouge">enable_if</code>的作用可以理解为限制模板所能够接受的类型。</p>
+
+<p>不过这个写法有点丑陋，毕竟返回类型这么长；所以另一个常见的写法是添加一个虚设的（dummy）参数，并在参数里实现 SFINAE<sup id="fnref:4"><a href="#fn:4" class="footnote">4</a></sup>：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="nf">frobnicate</span><span class="p">(</span><span class="n">T</span> <span class="n">t</span><span class="p">,</span> <span class="k">typename</span> <span class="n">enable_if</span><span class="o">&lt;</span><span class="n">is_floating_point</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;::</span><span class="n">type</span> <span class="o">*</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
+</code></pre></div></div>
+
+<h3 id="type_traits">type_traits</h3>
+
+<p>整个<code class="highlighter-rouge">&lt;type_traits&gt;</code>库过于庞大，以个人之力无法看穿，只能挑选一些浅薄的所见所得与大家分享。下面的代码均来自<code class="highlighter-rouge">&lt;type_traits&gt;</code>库，为了便于阅读，删去了一部分不影响理解的内容。</p>
+
+<p>首先，我们需要两个类<code class="highlighter-rouge">true_type</code>和<code class="highlighter-rouge">false_type</code>，用来区分结果。这两个类中应当定义<code class="highlighter-rouge">value</code>，类型为<code class="highlighter-rouge">bool</code>，值分别为<code class="highlighter-rouge">true</code>和<code class="highlighter-rouge">false</code>。</p>
+
+<p>然后，我们要考虑 cv 修饰符（<code class="highlighter-rouge">const</code>和<code class="highlighter-rouge">volatile</code>）的问题，它们不应影响我们对类型的判断。<code class="highlighter-rouge">remove_cv</code>的作用是去除类型中的 cv 修饰符，它的实现如下：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// remove_const</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">_Tp</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">remove_const</span> <span class="p">{</span><span class="k">typedef</span> <span class="n">_Tp</span> <span class="n">type</span><span class="p">;};</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">_Tp</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">remove_const</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">_Tp</span><span class="o">&gt;</span> <span class="p">{</span><span class="k">typedef</span> <span class="n">_Tp</span> <span class="n">type</span><span class="p">;};</span>
+
+<span class="c1">// remove_volatile</span>
+<span class="c1">// ...</span>
+
+<span class="c1">// remove_cv</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">_Tp</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">remove_cv</span> <span class="p">{</span>
+	<span class="k">typedef</span> <span class="k">typename</span> <span class="n">remove_volatile</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">remove_const</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">type</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>这里利用模板的匹配功能，获得了类型去掉 cv 修饰符后的名字，并记在了<code class="highlighter-rouge">remove_cv::type</code>中。</p>
+
+<p>接下来就可以判断了。先看一个简单的，<code class="highlighter-rouge">is_null_pointer</code>：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">_Tp</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">__is_nullptr_t_impl</span> <span class="o">:</span> <span class="k">public</span> <span class="n">false_type</span> <span class="p">{};</span>
+<span class="k">template</span> <span class="o">&lt;&gt;</span> <span class="k">struct</span> <span class="n">__is_nullptr_t_impl</span><span class="o">&lt;</span><span class="n">nullptr_t</span><span class="o">&gt;</span> <span class="o">:</span> <span class="k">public</span> <span class="n">true_type</span> <span class="p">{};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">_Tp</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">_LIBCPP_TYPE_VIS_ONLY</span> <span class="n">is_null_pointer</span>
+    <span class="o">:</span> <span class="k">public</span> <span class="n">__is_nullptr_t_impl</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">remove_cv</span><span class="o">&lt;</span><span class="n">_Tp</span><span class="o">&gt;::</span><span class="n">type</span><span class="o">&gt;</span> <span class="p">{};</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">nullptr_t</code>是 C++11 中加入的空指针类型。这个判断很简单，不用多说。</p>
+
+<p>下面则是一个特别玄的判断：<code class="highlighter-rouge">is_base_of</code>，判断<code class="highlighter-rouge">B</code>是否是<code class="highlighter-rouge">D</code>的基类。由于<code class="highlighter-rouge">&lt;type_traits&gt;</code>中的代码过于复杂，下面给出的代码是 StackOverflow 上一个问题里<sup id="fnref:5"><a href="#fn:5" class="footnote">5</a></sup>的简化版代码：</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">yes</span><span class="p">)[</span><span class="mi">1</span><span class="p">];</span>
+<span class="k">typedef</span> <span class="kt">char</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">no</span><span class="p">)[</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">B</span><span class="p">,</span> <span class="k">class</span> <span class="nc">D</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">Host</span> <span class="p">{</span>
+	<span class="k">operator</span> <span class="n">B</span><span class="o">*</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+	<span class="k">operator</span> <span class="n">D</span><span class="o">*</span><span class="p">();</span>
+<span class="p">}</span> <span class="p">;</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">B</span><span class="p">,</span> <span class="k">class</span> <span class="nc">D</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">is_base_of</span> <span class="p">{</span>
+	<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> 
+	  <span class="k">static</span> <span class="n">yes</span> <span class="n">test</span><span class="p">(</span><span class="n">D</span><span class="o">*</span><span class="p">,</span> <span class="n">T</span><span class="p">);</span>
+	<span class="k">static</span> <span class="n">no</span> <span class="n">test</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+	
+	<span class="k">static</span> <span class="k">const</span> <span class="kt">bool</span> <span class="n">value</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">test</span><span class="p">(</span><span class="n">Host</span><span class="o">&lt;</span><span class="n">B</span><span class="p">,</span><span class="n">D</span><span class="o">&gt;</span><span class="p">(),</span> <span class="kt">int</span><span class="p">()))</span> <span class="o">==</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">yes</span><span class="p">);</span>
+<span class="p">}</span> <span class="p">;</span>
+</code></pre></div></div>
+
+<p>我们把<code class="highlighter-rouge">true_type</code>和<code class="highlighter-rouge">false_type</code>改成了<code class="highlighter-rouge">yes</code>和<code class="highlighter-rouge">no</code>，通过其内存大小来判断类型；这个并不重要。</p>
+
+<p>要理解这段代码的原理，首先我们需要知道 C++ 标准中，有多个可选函数时会优先选择哪方：</p>
+
+<ul>
+  <li><strong>原则1：</strong>如果两个函数参数类型相同，而 cv 修饰符不同，则优先选择与传入参数 cv 修饰符匹配的一方；</li>
+  <li><strong>原则2：</strong>如果原则1无法区分，且两个类型转换函数返回类型不同，则优先选择与目标参数匹配的一方；</li>
+  <li><strong>原则3：</strong>如果原则2无法区分，优先选择非模板函数。</li>
+</ul>
+
+<p>现在我们来分析一下代码的原理。<code class="highlighter-rouge">Host</code>的两个类型转换函数的原型分别为</p>
+
+<ul>
+  <li><code class="highlighter-rouge">B *(Host&lt;B, D&gt; const &amp;)</code></li>
+  <li><code class="highlighter-rouge">D *(Host&lt;B, D&gt; &amp;)</code></li>
+</ul>
+
+<p>假设<code class="highlighter-rouge">B</code>是<code class="highlighter-rouge">D</code>的基类，那么<code class="highlighter-rouge">D *</code>可以转换为<code class="highlighter-rouge">B *</code>，反则不行。对于第一个<code class="highlighter-rouge">test</code>函数，可选的转换函数只有第二个；而对于第二个<code class="highlighter-rouge">test</code>函数，两个转换函数都可选，根据原则1，编译器会第二个选择转换函数（因为默认的传入参数为<code class="highlighter-rouge">*this</code>，为非<code class="highlighter-rouge">const</code>类型）。此时第一个<code class="highlighter-rouge">test</code>函数的目标类型与转换函数的返回类型匹配，而第二个的不匹配，根据原则2，编译器会选择第一个<code class="highlighter-rouge">test</code>函数，故得到<code class="highlighter-rouge">yes</code>。</p>
+
+<p>假设<code class="highlighter-rouge">B</code>不是<code class="highlighter-rouge">D</code>的基类，那么<code class="highlighter-rouge">D *</code>不可以转换为<code class="highlighter-rouge">B *</code>，反之或许可以。对于第二个<code class="highlighter-rouge">test</code>函数，可选的转换函数只有第一个；对于第一个<code class="highlighter-rouge">test</code>函数，可选的转换函数有第二个，也可能有第一个，但一定会选择第二个。此时根据原则3，编译器会选择第二个<code class="highlighter-rouge">test</code>函数，故得到<code class="highlighter-rouge">no</code>。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>写了这么多，其实也只涉及了模板的冰山一角。由此可见这一功能的强大与复杂，也不难理解为何模板一直处于争论的中心，甚至有这么一个笑话：“Java 程序员聚在一起谈面向对象和设计模式，C++ 程序员聚在一起谈模板和语言规范到底是怎么回事”，嘲笑的就是 C++ 令人咂舌的复杂程度。</p>
+
+<p>但一码归一码，C++ 还是一门被广泛使用的语言，因此适当的了解还是必要的。而本文中提到的用法，可能大家没有见过，但在工程中的确是普遍存在的。就拿 CRTP 来说，Boost 库的文法分析库 Spirit、计算几何库 CGAL 的整个核心中都使用了 CRTP；而 SFINAE 更是已经进入了 C++ 标准。即便自己不会写出这样的代码，至少在见到的时候也应该明白是在干什么；退一步讲，把这篇文章当成是普通的科普文章，图个乐呵也好。</p>
+
+<h2 id="参考文献">参考文献</h2>
+
+<p>​</p>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p><a href="https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern">Wikipedia - Curiously recurring template pattern</a> <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p><a href="https://katyscode.wordpress.com/2013/08/22/c-polymorphic-cloning-and-the-crtp-curiously-recurring-template-pattern/">Katy’s Code - C++: Polymorphic cloning and the CRTP (Curiously Recurring Template Pattern)</a> <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p><a href="https://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error">Wikipedia - Substitution failure is not an error</a> <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:4">
+      <p><a href="http://accu.org/content/conf2013/Jonathan_Wakely_sfinae.pdf">ACCU 2013 - Jonathan Wakely - SFINAE Functionality Is Not Arcane Esoterica</a> <a href="#fnref:4" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:5">
+      <p><a href="http://stackoverflow.com/questions/2910979/how-does-is-base-of-work">StackOverflow - How does <code class="highlighter-rouge">is_base_of</code> work?</a> <a href="#fnref:5" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div>
+
+  <footer class="post-footer">
+    <div class="post-meta">
+       <time datetime="2015-09-19T15:27:00+00:00" itemprop="datePublished">Sep 19, 2015</time> 
+      
+    </div>
+
+    
+  </footer>
+
+  
+  <div id="disqus_thread"></div>
+<script>
+  var disqus_config = function () {
+    this.page.url = 'http://zecong.hu/2015/09/19/what-you-dont-know-about-templates/';
+    this.page.identifier = 'http://zecong.hu/2015/09/19/what-you-dont-know-about-templates/';
+  };
+
+  (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = 'https://huzecong-blog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+    </div>
+    <script type="text/javascript">
+  (function () {
+    var resize = function () {
+      this.width = 0.5 * (this.naturalWidth || this.width);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".half-size, .retina2x"), function(el) {
+      if (el.naturalWidth) {
+        resize.call(el);
+      } else {
+        el.onload = resize;
+      }
+    });
+  })();
+</script>
+
+  </main>
+
+  
+<script type="text/javascript">
+  // Show tooltips for footnotes.
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /("?&nbsp;<a href="#fnref:.+?" class="reversefootnote">↩(<sup>.*?<\/sup>)*<\/a>)+/s;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      if (footnotes[index] === undefined) continue;
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        size: 'large',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+
+
+
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  let tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        topOffset = 0;
+
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            height = item.anchor.offsetHeight;
+      const y = topOffset;
+
+      const parent = item.item.parentNode;
+      
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels.
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it.
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      topOffset += height;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items.
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      if (pathEnd === 0) {
+        // no-op
+      } else {
+        tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
+        tocPath.setAttribute(
+          'stroke-dasharray',
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
+        tocPath.setAttribute('opacity', 1);
+      }
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+    // Compute heights of each item after expanding here, because `scrollHeight`
+    // does not take into account inner height of nested non-expanded lists that
+    // will also be expanded next.
+    const expandedHeights = Array(tocItems.length).fill(0);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = Infinity;
+      let accumulateHeight = 0;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          if (item.subList !== null)
+            accumulateHeight += item.subList.scrollHeight;
+          expandedHeights[i] = accumulateHeight;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    const addHeights = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          if (item.subList !== null) {
+            itemsToRemove.push(item.subList);
+          }
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          if (item.subList !== null) {
+            itemsToAdd.push(item.subList);
+            addHeights.push(expandedHeights[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      addHeights: addHeights,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems() {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    // if (ticket + 1 !== transitionCounter) {
+    //   transitionTicket = ticket + 1;
+    //   return;
+    // }
+
+    // Use the latest active index.
+    const index = currentActiveIndex;
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      // if (ticket + 1 === transitionCounter) {
+        // Only perform callback on final ticket.
+        // drawPath();
+        setActivePath(index);
+      // }
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = itemChanges.addHeights;
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      drawPath();
+      setActivePath(index);
+    });
+  }
+
+  function updateActive(event, forceRedraw = false) {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    for (; index < tocItems.length; ++index) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight)))) {
+        break;
+      }
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index || forceRedraw) {
+      // console.log("redraw", currentActiveIndex, index, forceRedraw);
+      currentActiveIndex = index;
+
+      // setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems();
+      });
+    }
+  }
+
+  drawPath();
+  updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+
+
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="social-links">
+      
+      <a class="social-link social-github" href="https://github.com/huzecong">
+        <i class="icon-github"></i>
+      </a>
+      
+      
+      
+      <a class="social-link social-rss" href="/feed.xml" target="_blank">
+        <i class="icon-rss"></i>
+      </a>
+    </div>
+    <div class="credits">
+      KAGAMI, made with <i class="icon-heart"></i> by Kamikat
+    </div>
+  </div>
+
+</footer>
+
+
+</body>
+
+</html>

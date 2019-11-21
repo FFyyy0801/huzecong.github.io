@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>大三下总结 - Zecong Hu&#39;s blog</title>
+  <meta name="description" content="这份总结实在是拖得太久了。 按理说暑假就应该写的，以暑研为借口拖到了大四上开学，又以没回国为由拖到了寒假，又以科研为由拖到了开学。再拖下去就要毕业了。 不过这一学期也是比较清闲的一学期。整个学期花时间最多的一件事是谈恋爱，但已经是回忆了，故此处不表。正事方面，课程不多，实验室搬砖每一到两周肝一晚上，社工处于半退休...">
+
+  
+  <link rel="stylesheet" href="/assets/styles/core.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/fontello.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/highlighting/default.css?v=20191121014911">
+
+  <link rel="canonical" href="http://zecong.hu/2018/02/24/my-6th-semester-in-college/">
+  <link rel="alternate" type="application/rss+xml" title="Zecong Hu&#39;s blog" href="/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  
+
+  
+
+  
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48327586-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+
+  <main class="page-content" aria-label="Content">
+    
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#出路">出路</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#实验室本校读研">实验室：本校读研</a></li>
+<li class="toc-entry toc-h3"><a href="#北美谷歌实习出国工作">北美谷歌实习：出国工作</a></li>
+<li class="toc-entry toc-h3"><a href="#cmu暑研出国读研">CMU暑研：出国读研</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#社工">社工</a></li>
+<li class="toc-entry toc-h2"><a href="#学习">学习</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#数字图像处理">数字图像处理</a></li>
+<li class="toc-entry toc-h3"><a href="#数据挖掘">数据挖掘</a></li>
+<li class="toc-entry toc-h3"><a href="#数据库专题训练">数据库专题训练</a></li>
+<li class="toc-entry toc-h3"><a href="#数值分析">数值分析</a></li>
+<li class="toc-entry toc-h3"><a href="#初等数论">初等数论</a></li>
+<li class="toc-entry toc-h3"><a href="#博弈论">博弈论</a></li>
+<li class="toc-entry toc-h3"><a href="#多元文化中的音乐现象">多元文化中的音乐现象</a></li>
+<li class="toc-entry toc-h3"><a href="#数学实验w">数学实验（W）</a></li>
+<li class="toc-entry toc-h3"><a href="#操作系统w">操作系统（W）</a></li>
+<li class="toc-entry toc-h3"><a href="#计算机系统结构w">计算机系统结构（W）</a></li>
+<li class="toc-entry toc-h3"><a href="#运作管理">运作管理</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#其他">其他</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#文素讲座">文素讲座</a></li>
+<li class="toc-entry toc-h3"><a href="#实验室">实验室</a></li>
+<li class="toc-entry toc-h3"><a href="#英语">英语</a></li>
+<li class="toc-entry toc-h3"><a href="#体育">体育</a></li>
+<li class="toc-entry toc-h3"><a href="#教务">教务</a></li>
+<li class="toc-entry toc-h3"><a href="#比赛">比赛</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#最后">最后</a></li>
+</ul>
+      </div>
+    </div>
+    
+
+    <div class="wrapper">
+      <nav class="site-nav">
+  
+  
+  	
+  	<a class="page-link" href="/" >About</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/en/index.html" >Articles</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/cn/index.html" >文章列表</a>
+  	
+  
+  	
+  
+  	
+  
+</nav>
+
+
+
+<article class="post" lang="zh-Hans" itemscope itemtype="http://schema.org/BlogPosting" >
+
+  <header class="post-header">
+  <a class="site-title" href="/">
+  	
+      Zecong Hu&#39;s blog
+    
+  </a>
+  <h1 class="post-title" itemprop="name headline">大三下总结</h1>
+</header>
+
+
+
+
+  <div class="post-content" itemprop="articleBody">
+    <p>这份总结实在是拖得太久了。</p>
+
+<p>按理说暑假就应该写的，以暑研为借口拖到了大四上开学，又以没回国为由拖到了寒假，又以科研为由拖到了开学。再拖下去就要毕业了。</p>
+
+<p>不过这一学期也是比较清闲的一学期。整个学期花时间最多的一件事是谈恋爱，但已经是回忆了，故此处不表。正事方面，课程不多，实验室搬砖每一到两周肝一晚上，社工处于半退休状态。半年后的今天回忆起来，竟然都想不到什么印象深刻的事情。</p>
+
+<p>也好，那就简单回顾一下吧。</p>
+
+<!--more-->
+
+<h2 id="出路">出路</h2>
+
+<p>日语里“<ruby><rb>進路</rb><rt>しんろ</rt><rb>調査</rb><rt>ちょうさ</rt></ruby>”的“<ruby><rb>進路</rb><rt>しんろ</rt></ruby>”，翻译过来就是出路。从大三上开始，关于未来的思考就成了贯穿学校生活的重要主题。无论是进校就目标坚定的人，还是头两年根本没往这方面想的人（我），都开始思考或者重新思考起这个问题来了。</p>
+
+<p>说来也是有趣，入学的时候我是非常坚定的工作党，认为读研没用，不如找工作，而且坚决不出国；大三上结束，我觉得好像读个研也是有意义的，不如试一试；而到了写总结的现在，我已经在等国外 MS 项目的申请结果了。看着我之前写的总结，感觉非常打脸。不过可能成长的一部分就是打脸吧。</p>
+
+<p>这个转变的过程也蛮有趣的。从大三上中旬到大三下中旬，我可以说是在恶补之前的空缺，尝试申请了不少项目。下面分门别类讲述一下。</p>
+
+<h3 id="实验室本校读研">实验室：本校读研</h3>
+
+<p>一开始只是觉得，毕业直接工作的话，就要开始操心房子问题、税率问题，以及生活中的柴米油盐。这样的转变似乎太快，让我有点措手不及；加之还没实习过，不知道工作到底是怎样的状态，于是想，说不定读研可以再缓三年。并不是觉得读研有多少用，而是单纯想要先逃避问题。</p>
+
+<p>之后和郭志芃聊，他强烈建议我读研，论点很传统，就是硕士文凭能让自己将来有怎样的优势。确实是有道理，于是我想，不管怎么样先去实验室感受一下吧。对，截至大三上，我既没实习又没进实验室，不知道都干了些什么。</p>
+
+<p>于是大三上期末的时候我找到了刘知远老师，进了他的实验室。我表达的想法是，我想做偏工程一点的东西，因为当时觉得自己对科研完全提不起劲。刘导便给了我一个改版“微博关键词”网站的锅，本质上就是个小软工。我想，也不错，感觉“不难.jpg”，于是就接下了锅，结果任务量超乎想象，这个后文再说。</p>
+
+<h3 id="北美谷歌实习出国工作">北美谷歌实习：出国工作</h3>
+
+<p>大三寒假的时候面了北美谷歌的暑期实习。这个是在10月份左右找学长帮忙内推的，理由是大三暑假不要浪费了，既然不出国那就不做暑研了，不如找个实习吧。之前也听说过有同学和学长去过谷歌在国外的办公室实习，于是也试了试。面试以算法为主，要求在 Google docs 上写代码。挺简单的，不过听说难度的方差比较大，或许也是我比较幸运。</p>
+
+<p>面试一周后就被告知通过了面试。当时很激动，上网查了一下谷歌工资有多少，结果也超乎想象。平均下来湾区的正式员工一年有大概12万刀的收入。当然，当时还不知道生活成本和税有多高，总之就是觉得这是一大笔钱，大概能比在国内多不少，于是萌生了毕业去国外工作的想法。不过，也就是想想而已。</p>
+
+<p>第一轮面试通过后就进入了匹配项目的阶段。由于实习没法替代你们系的<ruby><rb>暑假</rb><rt>傻逼</rt></ruby>小学期，我必须在暑假第6周再过去实习，开学一个月之后再回来。这个时间安排很不好，一方面我需要和系里请假，另一方面也和公司的秋招有部分重合，所以在共八个星期的匹配阶段中，头六个星期我都一点消息也没有。最后 Chrome OS 组的一位学姐要了我，项目是用炼丹的方法根据 commit log 和 CI log 定位可能存在错误的代码文件。可能不算是最好的选择，但其实也还挺有意思的。</p>
+
+<h3 id="cmu暑研出国读研">CMU暑研：出国读研</h3>
+
+<p>与此同时，我还了解到系里有一个跟 CMU 合作的暑研项目，大概有8个名额。当时黄老板正在进行艰苦卓绝的套磁，不知怎的，我也就觉得出去暑研可能也不错。因为嫌套磁太麻烦，我就不抱希望地申请了 CMU 的这个项目，想着反正也有谷歌实习保底。结果还真的申请上了。</p>
+
+<p>有了这个项目之后，实习自然就鸽了，毕竟还是 CMU 嘛。申请的时候需要选出想 match 的导师，因为我在刘知远的实验室，于是在 LTI 的 directory 里翻，瞎选了一些 NLP 方向的导师，随便排了个序。其中放在最后的是一位名叫 Graham Neubig 的 AP，是一位美国人，但在日本呆了6年，日语和 native speaker 一样，让我比较感兴趣。最后和我匹配上的也正是这位教授，想来还是挺巧的。</p>
+
+<p>之后就是各种繁杂的文件和手续了。再之后就是暑研了。暑研期间的事情就留到下个学期总结再提，总之就是我发现我其实对科研也还挺感兴趣的，而且也比较喜欢的 CMU 的人和环境。</p>
+
+<p>至此，毕业的三种主流出路我都依次考虑了一遍，最后的决定就是出国读研。</p>
+
+<h2 id="社工">社工</h2>
+
+<p>社工就没什么好说的了。本学期的我还是任着两个职位：文艺部的部长和算协的（常务）副主席。</p>
+
+<p>在文艺部基本上是尸位素餐，和去年一样，系歌赛交给了有留部意愿的大二小盆友，我就是每周参加一下例会，最后一起聚了个餐而已。</p>
+
+<p>算协这学期事还不少。上学期总结里似乎没有提，本来上学期计划办一个蛤克松的，但因为大家都很懈怠，最后告吹了。于是这一学期就说得把校赛给办好，最后的确办得还不错。因为<del>当了领导</del>了，所以大部分事情也不是我在操行，大家都干的很不错。</p>
+
+<h2 id="学习">学习</h2>
+
+<p>这学期其实课也不少，但以非硬核专业课为主，很多任务量也不大，所以花时间不多。加之中期退了整整12学分的课，“变成了当初最讨厌的样子”，所以更加轻松了。因此本学期成绩也不错，算是达成了最开始的目标，把 GPA 从89.4拉到89.5，四舍五入好看。</p>
+
+<h3 id="数字图像处理">数字图像处理</h3>
+
+<p>92分。算是花的时间最多的课，也是唯一愿意去上的课。内容还比较有意思，主要是介绍前人留下的靠人类智慧创造出的优美 CV 算法。最后大作业是个炼丹任务，年级里各位炼金术士各显神通，结果全都被天龙用朴素方法干翻在地。</p>
+
+<h3 id="数据挖掘">数据挖掘</h3>
+
+<p>92分。很水，不知道讲了啥。大作业就是调库，也可以做 KDD Cup。作为猪队友和白教猿跟（没选课的）侯大神组了队，讨论的时候瞎逼逼了一通高论，最后也没搞出什么来。</p>
+
+<h3 id="数据库专题训练">数据库专题训练</h3>
+
+<p>98分。三个大作业，其实和数据库关系不大，更像是 OI 题。下了些功夫（根据王老师和黄老板的 idea）做优化，最后在排行榜上还算靠前。</p>
+
+<h3 id="数值分析">数值分析</h3>
+
+<p>89分。数值分析数学实验二选一，最后选了工作量较小的数值分析。属于没太学懂，考试以计算题为主，极其依赖往年题的课程。</p>
+
+<h3 id="初等数论">初等数论</h3>
+
+<p>97分。死皮赖脸手动选上的。很水。考试默写定理。</p>
+
+<h3 id="博弈论">博弈论</h3>
+
+<p>优秀。这是个记通过的文素，非常划算。内容还是挺有趣的，也学到了知识。</p>
+
+<h3 id="多元文化中的音乐现象">多元文化中的音乐现象</h3>
+
+<p>86分。两学分文素，钦老板强烈推荐，加上老师讲课有趣，便选了这课。说实话听课不太认真，到现在也不怎么记得讲了什么了，算是科普性质的课程吧。期末要求当场表演任意形式的音乐，我们组表演了车祸现场。</p>
+
+<h3 id="数学实验w">数学实验（W）</h3>
+
+<p>是的，我数值分析和数学实验都选了，然后在中期退掉了数学实验。原因有二，一是数学实验作业量也不少，二是期末就考五道题过于刺激，对于求稳的我来说还是数值分析更加合适。</p>
+
+<h3 id="操作系统w">操作系统（W）</h3>
+
+<p>认真上了前半学期，因为期中考试有点惨而退课。也不能说完全没有兴趣，但的确是比较难，细节太多，而且感觉（前半学期内容）有不少是历史包袱。据说后半学期好一些。</p>
+
+<h3 id="计算机系统结构w">计算机系统结构（W）</h3>
+
+<p>不知道存在意义是什么的课程。前半学期和计原高度重合，后半学期讲一些小众结构，学着没什么问题，但老师比较搞笑（贬义）。这门课的作业做起来也让我感到莫名难受，于是就退课了。</p>
+
+<h3 id="运作管理">运作管理</h3>
+
+<p>唯一的管双课。本来还选了几门，不过下定了决心转辅修，因此都退了。这门课其实还挺偏数学的，有一点像数学建模。最后拿了93分，成了所有管双课里分数最高的一门。</p>
+
+<h2 id="其他">其他</h2>
+
+<h3 id="文素讲座">文素讲座</h3>
+
+<p>可算是听完讲座了。对照清华新闻网瞎凑了一篇讲座报告。没什么意思。</p>
+
+<h3 id="实验室">实验室</h3>
+
+<p>前面也说了，在实验室主要做工程项目。项目是和钟皓曦和王老板一起做的，之所以能和钟皓曦一块是因为他想保研到我们系。王老板中途转去了别的项目，到后面开发就基本上是我和钟皓曦两人。我们合作写出了不堪入目的丑陋代码，造了很多不好用的方轮子，运用了一些不应当被用在正经工程中的 Python 黑科技（e.g. monkey patching）。因为我俩其实都没什么干劲，因此都是留到组会头天晚上肝通宵做功能。最惨的一次是周日办校赛，头一天晚上熬夜准备，办完校赛去参加庆功宴，回来为了周一组会又通宵肝代码。真的是写到怀疑人生，也是唯一一次熬夜熬到熬不动，写一个小时就要睡一个小时。</p>
+
+<p>最后做出来的网站界面还算炫酷，但也仅仅是能用的水平，任务队列的可用性基本上属于 demo 水平。现在这个项目大概是搁置了，不知道还会不会捡起来（但愿不吧）。</p>
+
+<h3 id="英语">英语</h3>
+
+<p>大二考过一次托福，但要出国的话还要考 GRE，总而言之先准备着。开始用扇贝记 GRE 单词，非常痛苦，大概坚持了一个月，记住了诸如“教友派信徒”（Quaker）、“延期偿付”（moratorium）的词。但也就坚持了一个月，之后基本上忘光了。</p>
+
+<h3 id="体育">体育</h3>
+
+<p>体育课选了击剑，还挺有意思的，上课还算认真，但最后练得并不好。动作会做，但反应不过来。感觉自己还是不擅长竞技类的运动，没法耍帅。</p>
+
+<h3 id="教务">教务</h3>
+
+<p>这学期和教务打交道有三次。</p>
+
+<p>第一次是手动选数论课，需要填特殊原因选课申请表，然后找任课老师、系教务和校教务签字。</p>
+
+<p>第二次是本来想用谷歌实习替代系里的暑假小学期。为此找到了教务老师，但得到的答复是除非能证明实习内容是科研，不然没法替代，估计没戏。剩下的方案是开学后再回来或者找管得松的小学期老师。前者方案我问了学长，说找教务请假即可，问题不会太大；后者方案我联系了系里比较好说话的老师，但他说系里会抓这个事，所以他没法保证，后果得自负。找老师谈话的时候顺便被他劝退读研（所以知道是哪位老师了吧）。不过鉴于后来也有<ruby><rb> [ </rb><rt>手动断句</rt></ruby>虽然没有替代成功，但在小学期结束前就来暑研的同学 ] ，所以估计也是可以运作的。</p>
+
+<p>第三次是中期退课的时候，本来数值分析也退了，但沈导找到我说，系里有一条没有落实的规定：大四下不能选超过两门专业课，不然不能做毕设。怕被系里刁难，所以权衡了一下，决定把数值分析弄回来。我又填了手动选课申请表，假装是退课的时候手抖了，最后也成功选了回来。</p>
+
+<h3 id="比赛">比赛</h3>
+
+<p>每年春季学期都是比赛季，但随着年龄的增长，OI 水平直线下降。MegCup 因为题目不怎么常规，所以拿到了名次和奖金。TCO 又一次折戟 R2。GCJ 差点没拿到T恤，最后是靠写暴力+其他人 FST 苟进了T恤线。</p>
+
+<p>今年怕是无望了。</p>
+
+<h2 id="最后">最后</h2>
+
+<p>虽然还是挺啰嗦，但由于事儿少所以文章不算太长。</p>
+
+<p>本来想年前写的，但又拖到了年后。</p>
+
+<p>感谢看到这里的各位。今年的流水账不怎么好看，如果还能让你看完的话，我打心底里觉得感动。</p>
+
+<p>那么，下学期见。</p>
+
+  </div>
+
+  <footer class="post-footer">
+    <div class="post-meta">
+       <time datetime="2018-02-24T04:58:00+00:00" itemprop="datePublished">Feb 24, 2018</time> 
+      
+    </div>
+
+    
+  </footer>
+
+  
+  <div id="disqus_thread"></div>
+<script>
+  var disqus_config = function () {
+    this.page.url = 'http://zecong.hu/2018/02/24/my-6th-semester-in-college/';
+    this.page.identifier = 'http://zecong.hu/2018/02/24/my-6th-semester-in-college/';
+  };
+
+  (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = 'https://huzecong-blog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+    </div>
+    <script type="text/javascript">
+  (function () {
+    var resize = function () {
+      this.width = 0.5 * (this.naturalWidth || this.width);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".half-size, .retina2x"), function(el) {
+      if (el.naturalWidth) {
+        resize.call(el);
+      } else {
+        el.onload = resize;
+      }
+    });
+  })();
+</script>
+
+  </main>
+
+  
+<script type="text/javascript">
+  // Show tooltips for footnotes.
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /("?&nbsp;<a href="#fnref:.+?" class="reversefootnote">↩(<sup>.*?<\/sup>)*<\/a>)+/s;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      if (footnotes[index] === undefined) continue;
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        size: 'large',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+
+
+
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  let tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        topOffset = 0;
+
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            height = item.anchor.offsetHeight;
+      const y = topOffset;
+
+      const parent = item.item.parentNode;
+      
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels.
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it.
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      topOffset += height;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items.
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      if (pathEnd === 0) {
+        // no-op
+      } else {
+        tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
+        tocPath.setAttribute(
+          'stroke-dasharray',
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
+        tocPath.setAttribute('opacity', 1);
+      }
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+    // Compute heights of each item after expanding here, because `scrollHeight`
+    // does not take into account inner height of nested non-expanded lists that
+    // will also be expanded next.
+    const expandedHeights = Array(tocItems.length).fill(0);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = Infinity;
+      let accumulateHeight = 0;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          if (item.subList !== null)
+            accumulateHeight += item.subList.scrollHeight;
+          expandedHeights[i] = accumulateHeight;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    const addHeights = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          if (item.subList !== null) {
+            itemsToRemove.push(item.subList);
+          }
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          if (item.subList !== null) {
+            itemsToAdd.push(item.subList);
+            addHeights.push(expandedHeights[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      addHeights: addHeights,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems() {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    // if (ticket + 1 !== transitionCounter) {
+    //   transitionTicket = ticket + 1;
+    //   return;
+    // }
+
+    // Use the latest active index.
+    const index = currentActiveIndex;
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      // if (ticket + 1 === transitionCounter) {
+        // Only perform callback on final ticket.
+        // drawPath();
+        setActivePath(index);
+      // }
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = itemChanges.addHeights;
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      drawPath();
+      setActivePath(index);
+    });
+  }
+
+  function updateActive(event, forceRedraw = false) {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    for (; index < tocItems.length; ++index) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight)))) {
+        break;
+      }
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index || forceRedraw) {
+      // console.log("redraw", currentActiveIndex, index, forceRedraw);
+      currentActiveIndex = index;
+
+      // setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems();
+      });
+    }
+  }
+
+  drawPath();
+  updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+
+
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="social-links">
+      
+      <a class="social-link social-github" href="https://github.com/huzecong">
+        <i class="icon-github"></i>
+      </a>
+      
+      
+      
+      <a class="social-link social-rss" href="/feed.xml" target="_blank">
+        <i class="icon-rss"></i>
+      </a>
+    </div>
+    <div class="credits">
+      KAGAMI, made with <i class="icon-heart"></i> by Kamikat
+    </div>
+  </div>
+
+</footer>
+
+
+</body>
+
+</html>

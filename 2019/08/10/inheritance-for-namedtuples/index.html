@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Inheritance for Python Namedtuples - Zecong Hu&#39;s blog</title>
+  <meta name="description" content="tl;dr: Inheritance for the Python built-in namedtuple does not work as we expect. This blog post demonstrates how to create a custom namedtuple class that su...">
+
+  
+  <link rel="stylesheet" href="/assets/styles/core.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/fontello.css?v=20191121014911">
+  <link rel="stylesheet" href="/assets/styles/highlighting/default.css?v=20191121014911">
+
+  <link rel="canonical" href="http://zecong.hu/2019/08/10/inheritance-for-namedtuples/">
+  <link rel="alternate" type="application/rss+xml" title="Zecong Hu&#39;s blog" href="/feed.xml">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assets/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@4/themes/light.css">
+  <script src="https://unpkg.com/popper.js@1/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@4/umd/index.all.min.js"></script>
+  
+
+  
+
+  
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48327586-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  
+
+  
+</head>
+
+  <body>
+
+  <main class="page-content" aria-label="Content">
+    
+    <div id="table-of-contents">
+      <div class="toc-wrapper">
+        <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#instance-class-and-metaclass">Instance, Class, and Metaclass</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#class-instance-and-the-__new__-method">Class Instance and the __new__ method</a></li>
+<li class="toc-entry toc-h4"><a href="#metaclass">Metaclass</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#the-namedtuple-class">The NamedTuple Class</a></li>
+<li class="toc-entry toc-h2"><a href="#the-namedtuplemeta-metaclass">The NamedTupleMeta Metaclass</a></li>
+<li class="toc-entry toc-h2"><a href="#inheritance-with-a-single-base-class">Inheritance with a Single Base Class</a></li>
+<li class="toc-entry toc-h2"><a href="#multiple-inheritance">Multiple Inheritance</a></li>
+<li class="toc-entry toc-h2"><a href="#arbitrary-order-of-fields">Arbitrary Order of Fields</a></li>
+<li class="toc-entry toc-h2"><a href="#summary">Summary</a></li>
+<li class="toc-entry toc-h2"><a href="#footnotes">Footnotes</a></li>
+</ul>
+      </div>
+    </div>
+    
+
+    <div class="wrapper">
+      <nav class="site-nav">
+  
+  
+  	
+  	<a class="page-link" href="/" >About</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/en/index.html" >Articles</a>
+  	
+  
+  	
+  	<a class="page-link" href="/index/cn/index.html" >文章列表</a>
+  	
+  
+  	
+  
+  	
+  
+</nav>
+
+
+
+<article class="post" lang="en" itemscope itemtype="http://schema.org/BlogPosting" >
+
+  <header class="post-header">
+  <a class="site-title" href="/">
+  	
+      Zecong Hu&#39;s blog
+    
+  </a>
+  <h1 class="post-title" itemprop="name headline">Inheritance for Python Namedtuples</h1>
+</header>
+
+
+
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p><strong>tl;dr:</strong> Inheritance for the Python built-in namedtuple does not work as we expect. This blog post demonstrates how to create a custom namedtuple class that supports meaningful inheritance, and more.</p>
+</blockquote>
+
+<p>I’ve always under-appreciated the Python <a href="https://docs.python.org/3/library/collections.html#collections.namedtuple"><code class="highlighter-rouge">collections.namedtuple</code></a> class. For those who are unfamiliar, a namedtuple is a fancier tuple, whose elements can also be accessed as attributes:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="n">Point</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">'Point'</span><span class="p">,</span> <span class="p">(</span><span class="s">'x'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">))</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># 1 2
+</span></code></pre></div></div>
+
+<p>This allows using meaningful names for the elements, rather than having to remember what are stored under each index.</p>
+
+<p>What I don’t like about it, however, is the ugly syntax: attribute names are stored as strings, the class name is repeated, and most importantly, refactoring is error-prone, even within powerful IDEs. You can rename class attributes and all the references easily in PyCharm, but you can’t do that for namedtuples. What I wanted was a syntax like that of the C/C++ <code class="highlighter-rouge">struct</code>, with a default constructor to assign values to each field.</p>
+
+<p>Luckily, this changed in Python 3.6, with the implementation of <a href="https://www.python.org/dev/peps/pep-0526/">PEP 526</a>. This version provides <a href="https://docs.python.org/3/library/typing.html#typing.NamedTuple"><code class="highlighter-rouge">typing.NamedTuple</code></a>, a typed version of namedtuple with a brand new syntax. Instead of the example above, now you can write:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
+
+<span class="k">class</span> <span class="nc">Point</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># 1 0
+</span></code></pre></div></div>
+
+<p>This snippet works in exactly the same way, but adds type annotations for each field, and also supports default values (but fields with default values have to follow those without, just as in a function declaration). The syntax is also much more natural (to a former C++ user, at least). But there is still something we can’t do: inheritance.</p>
+
+<p>If you ever tried to inherit a namedtuple, you will find that it doesn’t work as you expect. As illustrated in <a href="https://stackoverflow.com/questions/42385916/inheriting-from-a-namedtuple-base-class-python">this StackOverflow question</a>, the new attributes added in the subclass doesn’t show up, and you’d have to manually override the constructor, which is kind of against the intention of using namedtuples in the first place.</p>
+
+<p>Now, you may think, let’s just hack into the internals and somehow make inheritance work. If you were ever in the mood to peek under the hood of this <code class="highlighter-rouge">namedtuple</code> class, you’d find that it’s surprisingly complicated for what seemed like a small and easy piece of functionality. But don’t be afraid, the logic is actually pretty straightforward — it just involves some details of Python’s internal data model.</p>
+
+<p>Before we begin, let’s summarize what we want to achieve through this blog post:</p>
+
+<ul>
+  <li>Make inheritance work for <code class="highlighter-rouge">typing.NamedTuple</code> as we expect.</li>
+  <li>Also allow multiple inheritance, if there are no overlaps in field names among the base classes.</li>
+  <li>Remove the constraint on ordering for fields with default values.</li>
+</ul>
+
+<h2 id="instance-class-and-metaclass">Instance, Class, and Metaclass</h2>
+
+<p>Before diving into the actual code, let’s get a couple of concepts clear. We need to know what metaclasses are, and how a class is created, before we can customize that behavior.</p>
+
+<p>If you’re not familiar with metaclasses, I recommend reading <a href="https://blog.ionelmc.ro/2015/02/09/understanding-python-metaclasses/">this wonderful article</a>, which gives a comprehensive explanation of the entire topic. But here, I will try to briefly explain the concepts that will be useful for our goals.</p>
+
+<h4 id="class-instance-and-the-__new__-method">Class Instance and the <code class="highlighter-rouge">__new__</code> method</h4>
+
+<p>We’re all familiar with <strong>class</strong>es. An <strong>instance</strong> of a class is what you’d get after calling the class constructor.</p>
+
+<p>You might think the Python class constructor is <code class="highlighter-rouge">__init__</code>, but that’s not the whole story. When you construct an instance, the <code class="highlighter-rouge">__new__</code> method is first called with the same arguments you pass to <code class="highlighter-rouge">__init__</code>. <code class="highlighter-rouge">__new__</code> is responsible for the actually creating an instance of the class, and that instance is then passed into <code class="highlighter-rouge">__init__</code> as the <code class="highlighter-rouge">self</code> argument.</p>
+
+<p>Note that <code class="highlighter-rouge">__new__</code> is considered a <a href="https://docs.python.org/3/library/functions.html#classmethod">class method</a> (because the instance is not even created at the point of call), so its first argument is <code class="highlighter-rouge">cls</code> instead of <code class="highlighter-rouge">self</code>. For most classes, the <code class="highlighter-rouge">__new__</code> method just calls the super class <code class="highlighter-rouge">__new__</code>, which all traces back to <code class="highlighter-rouge">object.__new__(cls)</code>.</p>
+
+<p>There are special cases though — you can return stuff that is not an instance of type <code class="highlighter-rouge">cls</code> (or any of its subclasses), in which case, the <code class="highlighter-rouge">__init__</code> method will not be called. A common use case for this is to entirely disable the behaviors of a class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ProgressBar</span><span class="p">:</span>  <span class="c1"># wrap around an iterable to print a progress bar to terminal
+</span>    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">enable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">iterable</span>  <span class="c1"># progress bar disabled; don't wrap the iterable
+</span>        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># `enable` must be `True`
+</span></code></pre></div></div>
+
+<h4 id="metaclass">Metaclass</h4>
+
+<p>The <code class="highlighter-rouge">type</code> built-in function shows the type of objects, <em>e.g.</em>,</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">type</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># int
+</span><span class="nb">type</span><span class="p">(</span><span class="mf">3.14</span><span class="p">)</span>  <span class="c1"># float
+</span><span class="nb">type</span><span class="p">(</span><span class="s">"wow"</span><span class="p">)</span>  <span class="c1"># str
+</span><span class="nb">type</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>  <span class="c1"># list
+</span><span class="nb">type</span><span class="p">(</span><span class="n">MissileWarningSystem</span><span class="p">(</span><span class="n">test_run</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>  <span class="c1"># &lt;class 'MissileWarningSystem'&gt;
+</span></code></pre></div></div>
+
+<p>But what is the type of a class? Turns out, the type of a class is what we call a <strong>metaclass</strong>, and the default metaclass (and the base for all metaclasses) is <code class="highlighter-rouge">type</code> itself. This reveals a new level of hierarchy<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup> to us:</p>
+
+<ul>
+  <li>An instance is an instance of a class. The base for all classes is <code class="highlighter-rouge">object</code>.</li>
+  <li>A class is an instance of a metaclass. The base for all metaclasses is <code class="highlighter-rouge">type</code>.</li>
+</ul>
+
+<p>Just as classes control the behavior of instances, metaclasses control the behavior of classes. When a class is created, the metaclass’ <code class="highlighter-rouge">__new__</code> method is called, and then its <code class="highlighter-rouge">__init__</code> method. What’s different to classes is that you don’t get to customize the arguments received, it’s always like this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Metaclass</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span> <span class="o">...</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="highlighter-rouge">mcs</code> is the metaclass instance, in this case, <code class="highlighter-rouge">Metaclass</code> or its potential sub-metaclasses (yes, inheritance works here).</li>
+  <li><code class="highlighter-rouge">typename</code> is a <code class="highlighter-rouge">str</code> storing the name of the class to create.</li>
+  <li><code class="highlighter-rouge">bases</code> is a tuple of classes, containing the base classes of the class to create. This is what’s in the brackets following the class name on the first line.</li>
+  <li><code class="highlighter-rouge">namespace</code> contains all the class-level attributes, including methods and class attributes.</li>
+</ul>
+
+<p>Since <code class="highlighter-rouge">type</code> is the default metaclass, we can use the same set of arguments with the <code class="highlighter-rouge">type</code> constructor to programmatically create a new class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">MyClass</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s">"MyClass"</span><span class="p">,</span> <span class="p">(</span><span class="nb">object</span><span class="p">,),</span> <span class="p">{</span>
+    <span class="s">"__init__"</span><span class="p">:</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">'x'</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span>
+    <span class="s">"foo"</span><span class="p">:</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>which is equivalent to the canonical class definition syntax:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="the-namedtuple-class">The <code class="highlighter-rouge">NamedTuple</code> Class</h2>
+
+<p>Now that we’re equipped with the adequate knowledge, the first thing to do is look at how <code class="highlighter-rouge">NamedTuple</code> is implemented:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_make_nmtuple</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s">"NamedTuple('Name', [(f0, t0), (f1, t1), ...]); each t must be a type"</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">[(</span><span class="n">n</span><span class="p">,</span> <span class="n">_type_check</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span><span class="p">]</span>
+    <span class="n">nm_tpl</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span><span class="p">])</span>
+    <span class="c1"># Prior to PEP 526, only _field_types attribute was assigned.
+</span>    <span class="c1"># Now, both __annotations__ and _field_types are used to maintain compatibility.
+</span>    <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__annotations__</span> <span class="o">=</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">_field_types</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__module__</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">f_globals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'__name__'</span><span class="p">,</span> <span class="s">'__main__'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="nb">AttributeError</span><span class="p">,</span> <span class="nb">ValueError</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">nm_tpl</span>
+
+<span class="k">class</span> <span class="nc">NamedTuple</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">NamedTupleMeta</span><span class="p">):</span>
+    <span class="n">_root</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="s">"Either list of fields or keywords"</span>
+                            <span class="s">" can be provided to NamedTuple, not both"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_make_nmtuple</span><span class="p">(</span><span class="n">typename</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">__new__</code> method here is actually not of our interest — it’s just here to provide an interface similar to <code class="highlighter-rouge">namedtuple</code>. The <code class="highlighter-rouge">_make_nmtuple</code> function that’s called from <code class="highlighter-rouge">__new__</code> is a utility function that internally constructs a <code class="highlighter-rouge">collections.namedtuple</code> and adds type annotations to it. We note that what’s returned from <code class="highlighter-rouge">__new__</code> is not an instance of <code class="highlighter-rouge">NamedTuple</code>.</p>
+
+<p>We notice that <code class="highlighter-rouge">NamedTuple</code> has a metaclass called <code class="highlighter-rouge">NamedTupleMeta</code>. The <code class="highlighter-rouge">_root</code> attribute here is important for the metaclass, and we’ll talk more of it later.</p>
+
+<h2 id="the-namedtuplemeta-metaclass">The <code class="highlighter-rouge">NamedTupleMeta</code> Metaclass</h2>
+
+<p>Now let’s take a look at the metaclass code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NamedTupleMeta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">ns</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'_root'</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'__annotations__'</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">nm_tpl</span> <span class="o">=</span> <span class="n">_make_nmtuple</span><span class="p">(</span><span class="n">typename</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">defaults_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">:</span>
+                <span class="n">default_value</span> <span class="o">=</span> <span class="n">ns</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
+                <span class="n">defaults</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">default_value</span><span class="p">)</span>
+                <span class="n">defaults_dict</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_value</span>
+            <span class="k">elif</span> <span class="n">defaults</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="s">"Non-default namedtuple field {field_name} cannot "</span>
+                                <span class="s">"follow default field(s) {default_names}"</span>
+                                <span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">field_name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span>
+                                        <span class="n">default_names</span><span class="o">=</span><span class="s">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">defaults_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+        <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__new__</span><span class="o">.</span><span class="n">__annotations__</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
+        <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__new__</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+        <span class="n">nm_tpl</span><span class="o">.</span><span class="n">_field_defaults</span> <span class="o">=</span> <span class="n">defaults_dict</span>
+        <span class="c1"># update from user namespace without overriding special namedtuple attributes
+</span>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_prohibited</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">AttributeError</span><span class="p">(</span><span class="s">"Cannot overwrite NamedTuple attribute "</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_special</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">nm_tpl</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">ns</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">nm_tpl</span>
+</code></pre></div></div>
+
+<p>Now we know why there’s a <code class="highlighter-rouge">_root</code> attribute in <code class="highlighter-rouge">NamedTuple</code>. The <code class="highlighter-rouge">__new__</code> method of <code class="highlighter-rouge">NamedTupleMeta</code> is also called when <code class="highlighter-rouge">NamedTuple</code> is created, but we can’t create a <code class="highlighter-rouge">collections.namedtuple</code> for that. Thus, we check whether this special <code class="highlighter-rouge">_root</code> attribute exists, and skips the following procedure if it does.</p>
+
+<p>When a subclass of <code class="highlighter-rouge">NamedTuple</code> is created, the <code class="highlighter-rouge">__new__</code> method is also called, but this time the rest of the procedure is also executed. A couple of things happen:</p>
+
+<ul>
+  <li>Obtain the list of fields in the namedtuple definition. Since we provide an annotation for each field, they’re stored as a dictionary in the <code class="highlighter-rouge">__annotations__</code> special attribute of the class.</li>
+  <li>Create a namedtuple class using <code class="highlighter-rouge">_make_nmtuple</code>. Note that the returned namedtuple class does not support default values<sup id="fnref:2"><a href="#fn:2" class="footnote">2</a></sup> or contain type annotations for the <code class="highlighter-rouge">__init__</code> method.</li>
+  <li>Gather default values from <code class="highlighter-rouge">ns</code> (namespace) and set annotations and default argument values for the <code class="highlighter-rouge">__new__</code> method of the namedtuple class.</li>
+  <li>Add other attributes and methods to the created namedtuple class, so additional methods you defined in the <code class="highlighter-rouge">NamedTuple</code> subclass can also be called from the returned namedtuple class.</li>
+</ul>
+
+<h2 id="inheritance-with-a-single-base-class">Inheritance with a Single Base Class</h2>
+
+<p>Let’s first think about what we’re trying to accomplish by inheritance:</p>
+
+<ul>
+  <li>Automatically generate a constructor that sets all fields, including those from the base class.</li>
+  <li>Access methods, attributes, and properties from the base class.</li>
+  <li>Behave correctly in <code class="highlighter-rouge">isinstance</code> and <code class="highlighter-rouge">issubclass</code> checks.</li>
+</ul>
+
+<p>If we don’t care about the latter two, the solution is pretty straightforward: we just gather the fields defined in the derived and base classes, and ask <code class="highlighter-rouge">NamedTupleMeta</code> to create a <code class="highlighter-rouge">NamedTuple</code> based on these fields.</p>
+
+<p>Let’s make a first attempt at implementing this. Out of personal preference, I’m going to call our enhanced namedtuple <code class="highlighter-rouge">Options</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">OptionsMeta</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTupleMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'_root'</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="c1"># The created class is `Options`, skip.
+</span>            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+        <span class="c1"># Gather fields from annotations of current class and base class.
+</span>        <span class="n">fields</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">cur_fields</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'__annotations__'</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="c1"># We only deal with single inheritance for now.
+</span>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">bases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s">'_fields'</span><span class="p">):</span>
+            <span class="c1"># Base class is a concrete namedtuple.
+</span>            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+                <span class="c1"># Make sure not to overwrite redefined fields.
+</span>                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cur_fields</span><span class="p">:</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">__annotations__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">_field_defaults</span><span class="p">:</span>
+                        <span class="n">namespace</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="o">.</span><span class="n">_field_defaults</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cur_fields</span><span class="p">)</span>
+        <span class="n">namespace</span><span class="p">[</span><span class="s">'__annotations__'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span>
+
+        <span class="c1"># Let `NamedTupleMeta` create a annotated `namedtuple` for us.
+</span>        <span class="c1"># Note that `bases` is not used there so we just set it to `None`.
+</span>        <span class="n">nm_tpl</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nm_tpl</span>
+
+<span class="k">class</span> <span class="nc">Options</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">OptionsMeta</span><span class="p">):</span>
+    <span class="n">_root</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="n">Options</span><span class="p">:</span>
+            <span class="c1"># Prevent instantiation of `Options` class.
+</span>            <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span><span class="s">"Type Options cannot be instantiated; "</span>
+                            <span class="s">"it can be used only as a base class"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>A few things to notice here:</p>
+
+<ul>
+  <li>We define a new metaclass that inherits <code class="highlighter-rouge">NamedTupleMeta</code> so we could call its <code class="highlighter-rouge">__new__</code> method that takes care of everything for us. The <code class="highlighter-rouge">Options</code> class doesn’t really do anything, and for simplicity, we forbid directly instantiating it like we could for <code class="highlighter-rouge">NamedTuple</code>.</li>
+  <li><code class="highlighter-rouge">annotations</code> must be an <code class="highlighter-rouge">OrderedDict</code> because the ordering of fields matter — the order determines the index of the field in the underlying tuple object. Here we put base class fields in front of derived ones, but leave out ones that are redefined.</li>
+  <li>A limitation of this method is that the base class cannot contain fields with default values, unless: <em>a)</em> they’re redefined in the base class, or <em>b)</em> every field in the derived class also comes with a default value.</li>
+</ul>
+
+<p>If you understood what we’ve learnt so far, the implementation is actually pretty straightforward. However, we encounter problems when we try to use it in practice:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">BaseOptions</span><span class="p">(</span><span class="n">Options</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">DerivedOptions</span><span class="p">(</span><span class="n">BaseOptions</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">BaseOptions</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">BaseOptions</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">DerivedOptions</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">BaseOptions</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">DerivedOptions</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="nb">TypeError</span>                                 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">5</span><span class="o">-</span><span class="n">f4db6b51352e</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="o">----&gt;</span> <span class="mi">1</span> <span class="n">DerivedOptions</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+
+<span class="nb">TypeError</span><span class="p">:</span> <span class="n">__new__</span><span class="p">()</span> <span class="n">takes</span> <span class="k">from</span> <span class="mi">2</span> <span class="n">to</span> <span class="mi">3</span> <span class="n">positional</span> <span class="n">arguments</span> <span class="n">but</span> <span class="mi">4</span> <span class="n">were</span> <span class="n">given</span>
+</code></pre></div></div>
+
+<p>The error message may seem a bit cryptic, but what happens here is that <code class="highlighter-rouge">DerivedOptions</code> became an alias for <code class="highlighter-rouge">BaseOptions</code>. A deeper investigation shows that <code class="highlighter-rouge">OptionsMeta.__new__</code> is not even called when <code class="highlighter-rouge">DerivedOptions</code> is created. How come?</p>
+
+<p>The truth is, the <code class="highlighter-rouge">nm_tpl</code> returned from the constructor of <code class="highlighter-rouge">NamedTuple</code> is of type <code class="highlighter-rouge">collections.namedtuple</code>, and of course, the metaclass of which is not <code class="highlighter-rouge">OptionsMeta</code>. When inheriting the <code class="highlighter-rouge">nm_tpl</code> class, we’re actually inheriting a namedtuple, not an <code class="highlighter-rouge">Options</code> subclass.</p>
+
+<p>Thus, we must create a new class using the namespace of <code class="highlighter-rouge">nm_tpl</code>, and we do so by directly invoking the <code class="highlighter-rouge">__new__</code> method of <code class="highlighter-rouge">type</code>, which is <code class="highlighter-rouge">NamedTupleMeta</code>’s super class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span> <span class="o">+</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>To explain this method call:</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">type.__new__</code> will create a class with metaclass set to <code class="highlighter-rouge">mcs</code> (which is <code class="highlighter-rouge">OptionsMeta</code> in this case).</p>
+  </li>
+  <li>
+    <p>An added benefit here is that we get to set the base class of the created class, in this case, <code class="highlighter-rouge">BaseOptions</code> (from <code class="highlighter-rouge">bases</code>) and <code class="highlighter-rouge">tuple</code> (from <code class="highlighter-rouge">nm_tpl.__bases__</code>). Note that it’s essential to keep <code class="highlighter-rouge">tuple</code> a base class, because <code class="highlighter-rouge">tuple.__new__</code> is called when we create an instance of this namedtuple, and that requires the class to be a subclass of <code class="highlighter-rouge">tuple</code>. If we don’t do that, we get an exception:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">TypeError</span><span class="p">:</span> <span class="nb">tuple</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">DerivedOptions</span><span class="p">):</span> <span class="n">DerivedOptions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">a</span> <span class="n">subtype</span> <span class="n">of</span> <span class="nb">tuple</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">__dict__</code> (namespace) of <code class="highlighter-rouge">nm_tpl</code> is used as is. We do a copy because <code class="highlighter-rouge">type.__new__</code> requires this namespace dictionary to be writable (of type <code class="highlighter-rouge">dict</code>), but <code class="highlighter-rouge">__dict__</code> is not (of type <code class="highlighter-rouge">mappingproxy</code>).</p>
+  </li>
+</ul>
+
+<p>Since we were able to keep the actual base class (<code class="highlighter-rouge">BaseOptions</code>) in the MRO<sup id="fnref:3"><a href="#fn:3" class="footnote">3</a></sup> of the derived class, Python automatically takes care of the latter two functionalities we wanted to accomplish by inheritance. We can easily verify this:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">BaseOptions</span><span class="p">(</span><span class="n">Options</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="o">@</span><span class="nb">property</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">DerivedOptions</span><span class="p">(</span><span class="n">BaseOptions</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">b</span> <span class="p">:</span><span class="nb">int</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">x</span> <span class="o">=</span> <span class="n">DerivedOptions</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">x</span><span class="o">.</span><span class="n">foo</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="mi">1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">BaseOptions</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<h2 id="multiple-inheritance">Multiple Inheritance</h2>
+
+<p>The method above also fits for multiple inheritance — we just need to gather fields from all the base classes. However, with multiple bases come other problems that did not exist in the single inheritance case:</p>
+
+<ul>
+  <li>What if multiple base classes define the same field? Since we’re exploring uncharted waters here, we get to define the behavior, but it has to be intuitive. My opinion is that base classes must not have overlapping fields, unless they’re redefined in the derived class. This guarantees that there aren’t unexpected overwrites of fields by different orderings of the base classes. But of course, if you implement it, you’re free to choose whatever strategy that pleases you.</li>
+  <li>What if a base class is not a subclass of <code class="highlighter-rouge">Options</code>? We should still keep it <code class="highlighter-rouge">bases</code> so it’s kept in the MRO<sup id="fnref:4"><a href="#fn:4" class="footnote">4</a></sup>, and instances could access its methods.</li>
+</ul>
+
+<p>Now, let’s try implementing this <code class="highlighter-rouge">OptionsMeta</code> metaclass that supports multiple inheritance:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">OptionsMeta</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTupleMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">namespace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'_root'</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
+            <span class="c1"># The created class is `Options`, skip.
+</span>            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+        <span class="c1"># Gather fields from annotations of current class and base classes.
+</span>        <span class="n">cur_fields</span> <span class="o">=</span> <span class="n">namespace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'__annotations__'</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">field_sources</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># which base class does the name came from
+</span>        <span class="n">field_defaults</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Options</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="s">'_fields'</span><span class="p">):</span>
+                <span class="c1"># Base class is a concrete subclass of `Options`.
+</span>                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cur_fields</span><span class="p">:</span>
+                        <span class="c1"># Make sure not to overwrite redefined fields.
+</span>                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+                        <span class="c1"># Overlapping field that is not redefined.
+</span>                        <span class="k">raise</span> <span class="nb">TypeError</span><span class="p">(</span>
+                            <span class="n">f</span><span class="s">"Base class {base} contains field {name}, which "</span>
+                            <span class="n">f</span><span class="s">"is defined in other base class "</span>
+                            <span class="n">f</span><span class="s">"{field_sources[name]}"</span><span class="p">)</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">__annotations__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">field_sources</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">_field_defaults</span><span class="p">:</span>
+                        <span class="n">field_defaults</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">_field_defaults</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cur_fields</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">"Options class must contain at least one field"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">field_defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">namespace</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">namespace</span><span class="p">[</span><span class="s">'__annotations__'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span>
+
+        <span class="c1"># Let `NamedTupleMeta` create a annotated `namedtuple` for us.
+</span>        <span class="c1"># Note that `bases` is not used here so we just set it to `None`.
+</span>        <span class="k">print</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="n">nm_tpl</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+
+        <span class="c1"># Wrap the return type in `OptionsMeta` so it can be subclassed.
+</span>        <span class="c1"># Also keep base classes of the `namedtuple` (i.e., the `tuple` class),
+</span>        <span class="c1"># so we can call `tuple.__new__`.
+</span>        <span class="n">bases</span> <span class="o">=</span> <span class="n">bases</span> <span class="o">+</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>This works great when we inherit from non-<code class="highlighter-rouge">Options</code> classes, as we can see from these examples:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">BaseOptions</span><span class="p">(</span><span class="n">Options</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="o">@</span><span class="nb">property</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">Mixin</span><span class="p">:</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">DerivedOptions</span><span class="p">(</span><span class="n">BaseOptions</span><span class="p">,</span> <span class="n">Mixin</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">b</span> <span class="p">:</span><span class="nb">int</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">x</span> <span class="o">=</span> <span class="n">DerivedOptions</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">x</span><span class="o">.</span><span class="n">foo</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="mi">1</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">x</span><span class="o">.</span><span class="n">bar</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="mi">3</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">BaseOptions</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">7</span><span class="p">]:</span> <span class="bp">True</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Mixin</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">8</span><span class="p">]:</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<p>But when we try to inherit from two <code class="highlighter-rouge">Options</code> subclasses, something weird happens:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">OptionsA</span><span class="p">(</span><span class="n">Options</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">b</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">OptionsB</span><span class="p">(</span><span class="n">Options</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">c</span><span class="p">:</span> <span class="nb">int</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="n">d</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="k">class</span> <span class="nc">MergedOptions</span><span class="p">(</span><span class="n">OptionsA</span><span class="p">,</span> <span class="n">OptionsB</span><span class="p">):</span>
+   <span class="o">...</span><span class="p">:</span>     <span class="k">pass</span>
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="nb">TypeError</span>                                 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="mi">51</span><span class="n">d384fffb01</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="o">----&gt;</span> <span class="mi">1</span> <span class="k">class</span> <span class="nc">MergedOptions</span><span class="p">(</span><span class="n">OptionsA</span><span class="p">,</span> <span class="n">OptionsB</span><span class="p">):</span>
+      <span class="mi">2</span>     <span class="k">pass</span>
+      <span class="mi">3</span>
+
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">3</span><span class="o">-</span><span class="mi">5</span><span class="n">ff213f4a3b5</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+     <span class="mi">43</span>         <span class="c1"># so we can call `tuple.__new__`.
+</span>     <span class="mi">44</span>         <span class="n">bases</span> <span class="o">=</span> <span class="n">bases</span> <span class="o">+</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span>
+<span class="o">---&gt;</span> <span class="mi">45</span>         <span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+     <span class="mi">46</span>
+
+<span class="nb">TypeError</span><span class="p">:</span> <span class="n">multiple</span> <span class="n">bases</span> <span class="n">have</span> <span class="n">instance</span> <span class="n">lay</span><span class="o">-</span><span class="n">out</span> <span class="n">conflict</span>
+</code></pre></div></div>
+
+<p>Now this is something new, an error message I’ve never seen before. It turns out that I cannot inherit from multiple built-in classes that don’t go together at the C level<sup id="fnref:5"><a href="#fn:5" class="footnote">5</a></sup>, in this case, two different subclasses of <code class="highlighter-rouge">tuple</code>. I can see why this is a problem: such built-in types are implemented in C, with fixed memory layouts and implementations for special methods.</p>
+
+<p>If we can’t create the type with our bases, how about modifying the bases after creation? It turns out you can’t do that either:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">118</span><span class="o">-</span><span class="n">d6cd3ab74257</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+     <span class="mi">43</span>         <span class="c1"># so we can call `tuple.__new__`.
+</span>     <span class="mi">44</span>         <span class="n">options_type</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+<span class="o">---&gt;</span> <span class="mi">45</span>         <span class="n">options_type</span><span class="o">.</span><span class="n">__bases__</span> <span class="o">=</span> <span class="n">bases</span>
+     <span class="mi">46</span>         <span class="k">return</span> <span class="n">options_type</span>
+     <span class="mi">47</span>
+
+<span class="nb">TypeError</span><span class="p">:</span> <span class="n">__bases__</span> <span class="n">assignment</span><span class="p">:</span> <span class="s">'Options'</span> <span class="nb">object</span> <span class="n">layout</span> <span class="n">differs</span> <span class="k">from</span> <span class="s">'tuple'</span>
+</code></pre></div></div>
+
+<p>It seems that we’re out of luck. But actually, here’s some less known evil: you can <a href="http://stupidpythonideas.blogspot.com/2015/12/can-you-customize-method-resolution.html">override the creation of the MRO</a> in the metaclass! But the crazy thing here is, we need to implement the C3 linearization algorithm ourselves. Luckily, it’s a simple algorithm:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">OptionsMeta</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTupleMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+        <span class="o">...</span>  <span class="c1"># omitted here
+</span>        <span class="n">new_namespace</span> <span class="o">=</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_namespace</span><span class="p">[</span><span class="s">'_bases'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bases</span>
+        <span class="n">options_type</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span><span class="p">,</span> <span class="n">new_namespace</span><span class="p">)</span>
+        <span class="c1"># Writing to `__bases__` triggers an MRO update. This has to be done after
+</span>        <span class="c1"># class creation because otherwise we can't access `_bases`.
+</span>        <span class="n">options_type</span><span class="o">.</span><span class="n">__bases__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">nm_tpl</span><span class="o">.</span><span class="n">__bases__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">options_type</span>
+
+    <span class="k">def</span> <span class="nf">mro</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="n">default_mro</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mro</span><span class="p">()</span>
+        <span class="c1"># `Options` does not define `_bases`, so we don't do anything about it.
+</span>        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">'_bases'</span><span class="p">):</span>
+            <span class="c1"># `default_mro` should be `[cls, tuple, object]`.
+</span>            <span class="c1"># `c3merge` and `c3mro` are implementations of the C3 linearization
+</span>            <span class="c1"># algorithm, which unluckily aren't provided as APIs.
+</span>            <span class="k">return</span> <span class="n">c3merge</span><span class="p">([</span>
+                <span class="n">default_mro</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">base</span><span class="o">.</span><span class="n">__mro__</span> <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">_bases</span><span class="p">],</span>
+                <span class="n">default_mro</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+        <span class="k">return</span> <span class="n">default_mro</span>
+
+<span class="k">def</span> <span class="nf">c3merge</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+    <span class="s">r"""Adapted from https://www.python.org/download/releases/2.3/mro/"""</span>
+    <span class="c1"># Make sure we don't actually mutate anything we are getting as input.
+</span>    <span class="n">sequences</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c1"># Clear out blank sequences.
+</span>        <span class="n">sequences</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sequences</span> <span class="k">if</span> <span class="n">x</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sequences</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="c1"># Find the first clean head.
+</span>        <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If this is not a bad head (i.e., not in any other sequence)
+</span>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">head</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s">"inconsistent hierarchy"</span><span class="p">)</span>
+        <span class="c1"># Move the head from the front of all sequences to the end of results.
+</span>        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">head</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+
+<p>Of course, this complex method is when you need to support every general case. Normally you wouldn’t have multiple layers of hierarchy for namedtuples, nor will you mix-in a bunch of other classes such that you need to be careful about the MRO.</p>
+
+<h2 id="arbitrary-order-of-fields">Arbitrary Order of Fields</h2>
+
+<p>Now, to the final goal which you’ve probably forgotten: removing the constraint on ordering for fields with default values. This is an inherent limit in Python, because method arguments with default values are treated as keyword arguments (captured by <code class="highlighter-rouge">**kwargs</code>), and have to be declared after positional arguments (captured by <code class="highlighter-rouge">*args</code>).</p>
+
+<p>To workaround this, we can declare all arguments of the constructor as keyword-only arguments. For me, not allowing positional arguments is actually better because the order of the fields can be ambiguous when you have multiple base classes.</p>
+
+<p>How can we programmatically create a method with custom arguments? Let’s dive into the code for <code class="highlighter-rouge">collections.namedtuple</code>, where the magic happens. The code is pretty long so I’m just going to show the relevant parts here. Turns out magic doesn’t exist, everything’s just a hack:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="o">...</span>  <span class="c1"># omitted
+</span>    <span class="n">arg_list</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"'"</span><span class="p">,</span> <span class="s">""</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Create all the named tuple methods to be added to the class namespace
+</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="s">'def __new__(_cls, {arg_list}): return _tuple_new(_cls, ({arg_list}))'</span>
+    <span class="n">namespace</span> <span class="o">=</span> <span class="p">{</span><span class="s">'_tuple_new'</span><span class="p">:</span> <span class="n">tuple_new</span><span class="p">,</span> <span class="s">'__name__'</span><span class="p">:</span> <span class="n">f</span><span class="s">'namedtuple_{typename}'</span><span class="p">}</span>
+    <span class="c1"># Note: exec() has the side-effect of interning the field names
+</span>    <span class="k">exec</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+    <span class="n">__new__</span> <span class="o">=</span> <span class="n">namespace</span><span class="p">[</span><span class="s">'__new__'</span><span class="p">]</span>
+    <span class="n">__new__</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">f</span><span class="s">'Create new instance of {typename}({arg_list})'</span>
+    <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">__new__</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="n">defaults</span>
+    <span class="n">__new__</span><span class="o">.</span><span class="n">__qualname__</span> <span class="o">=</span> <span class="n">f</span><span class="s">'{typename}.__new__'</span>
+
+    <span class="o">...</span>  <span class="c1"># omitted
+</span>    <span class="n">class_namespace</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">...</span>  <span class="c1"># omitted
+</span>        <span class="s">'__new__'</span><span class="p">:</span> <span class="n">__new__</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="o">...</span>  <span class="c1"># omitted
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">typename</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,),</span> <span class="n">class_namespace</span><span class="p">)</span>
+
+    <span class="o">...</span>  <span class="c1"># omitted
+</span></code></pre></div></div>
+
+<p>Yep, that’s right. The <code class="highlighter-rouge">__new__</code> method for the namedtuple is created by <em>writing code as a string and calling <code class="highlighter-rouge">exec</code></em>. To be honest, that’s probably the easiest way, and we shouldn’t have gone this far if we need to talk about elegant and readable implementations.</p>
+
+<p>Following their lead, we can also create our own version of <code class="highlighter-rouge">__new__</code> and overwrite theirs:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="c1"># Rewrite `__new__` method to make all arguments keyword-only.
+</span>        <span class="c1"># This is very hacky code. Do not try this at home.
+</span>        <span class="n">arg_list</span> <span class="o">=</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s">', '</span>  <span class="c1"># watch out for singleton tuples
+</span>                           <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reordered_fields</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">f</span><span class="s">"""
+        def __new__(_cls, *args, {arg_list}):
+            if len(args) &gt; 0:
+                raise TypeError("Instances of Options class must be created "
+                                "with keyword arguments.")
+            return _tuple_new(_cls, ({arg_list}))
+        """</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># remove incorrect indents in the string
+</span>        <span class="n">new_method_namespace</span> <span class="o">=</span> <span class="p">{</span><span class="s">'_tuple_new'</span><span class="p">:</span> <span class="nb">tuple</span><span class="o">.</span><span class="n">__new__</span><span class="p">,</span>
+                                <span class="s">'__name__'</span><span class="p">:</span> <span class="n">f</span><span class="s">'namedtuple_{typename}'</span><span class="p">}</span>
+        <span class="k">exec</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">new_method_namespace</span><span class="p">)</span>
+        <span class="n">__new__</span> <span class="o">=</span> <span class="n">new_method_namespace</span><span class="p">[</span><span class="s">'__new__'</span><span class="p">]</span>
+        <span class="n">__new__</span><span class="o">.</span><span class="n">__qualname__</span> <span class="o">=</span> <span class="n">f</span><span class="s">'{typename}.__new__'</span>
+        <span class="n">__new__</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__new__</span><span class="o">.</span><span class="n">__doc__</span>
+        <span class="n">__new__</span><span class="o">.</span><span class="n">__annotations__</span> <span class="o">=</span> <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__new__</span><span class="o">.</span><span class="n">__annotations__</span>
+        <span class="n">__new__</span><span class="o">.</span><span class="n">__kwdefaults__</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">namespace</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                                  <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">fields_with_default</span><span class="p">}</span>
+        <span class="n">nm_tpl</span><span class="o">.</span><span class="n">__new__</span> <span class="o">=</span> <span class="n">__new__</span>
+</code></pre></div></div>
+
+<p>As the comment says, this is very dangerous. Don’t try this at home.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>So far, we’ve delivered our promises. We have a super-enhanced version of namedtuple that supports multiple inheritance and arbitrary field orders. You can find the entire working code in <a href="https://gist.github.com/huzecong/df51502a8a6ec0bcc0e605a2ce109008">this GitHub Gist</a>. It’s a bit long, but you don’t really need to know the details — do the Pythonic thing and treat it as library.</p>
+
+<p>But you may ask, what’s it useful for?</p>
+
+<p>I dunno, but it’s a pretty fun journey, isn’t it?</p>
+
+<h2 id="footnotes">Footnotes</h2>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>There’s actually another level called the meta-metaclass, but that’s rarely useful and I’ve never seen any practical usages. <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p>This is true for Python 3.6 and lower. Starting from Python 3.7, <code class="highlighter-rouge">collections.namedtuple</code> supports an optional <code class="highlighter-rouge">default</code> argument. <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:3">
+      <p>The MRO (method resolution order) is Python’s answer to the diamond dependency problem in multiple inheritance. When we access a method of an instance, we find the first class in its MRO that defines such method, and returns the method of that class. In the single inheritance case, MRO can be thought of as the list of ancestor classes from the derived class to <code class="highlighter-rouge">object</code>, the base class of everything. Please refer to <a href="https://en.wikipedia.org/wiki/C3_linearization">this Wikipedia article</a> for the algorithm used to compute MRO — the C3 linearization algorithm. <a href="#fnref:3" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:4">
+      <p>If you don’t know what this means, you have skipped <a href="#fn:3">footnote 3</a>. <a href="#fnref:4" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:5">
+      <p>This is a simplified explanation. <a href="https://stackoverflow.com/questions/48136025/typeerror-multiple-bases-have-instance-lay-out-conflict">This StackOverflow answer</a> gave a pointer to the CPython source code that calculates the best “solid base” for a new class. I’m not familiar with CPython implementations, but my guess is that the solid base is the first class among the MRO with a memory layout different from its base class. Note that adding Python attributes and methods don’t affect the memory layout, because that’s equivalent to adding entries to the <code class="highlighter-rouge">__dict__</code> dictionary.</p>
+
+      <p>Also note that this is not limited to CPython. Mypy also has <a href="https://bitbucket.org/pypy/pypy/annotate/default/pypy/objspace/std/typeobject.py?at=default&amp;fileviewer=file-view-default#typeobject.py-1064:1086">a similar check</a>. <a href="#fnref:5" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div>
+
+  <footer class="post-footer">
+    <div class="post-meta">
+       <time datetime="2019-08-10T19:05:00+00:00" itemprop="datePublished">Aug 10, 2019</time> 
+      
+    </div>
+
+    
+  </footer>
+
+  
+  <div id="disqus_thread"></div>
+<script>
+  var disqus_config = function () {
+    this.page.url = 'http://zecong.hu/2019/08/10/inheritance-for-namedtuples/';
+    this.page.identifier = 'http://zecong.hu/2019/08/10/inheritance-for-namedtuples/';
+  };
+
+  (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = 'https://huzecong-blog.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+  
+</article>
+
+    </div>
+    <script type="text/javascript">
+  (function () {
+    var resize = function () {
+      this.width = 0.5 * (this.naturalWidth || this.width);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".half-size, .retina2x"), function(el) {
+      if (el.naturalWidth) {
+        resize.call(el);
+      } else {
+        el.onload = resize;
+      }
+    });
+  })();
+</script>
+
+  </main>
+
+  
+<script type="text/javascript">
+  // Show tooltips for footnotes.
+  (function() {
+    const footnotes = document.querySelectorAll(".footnotes > ol > li");
+    const returnMarkRegex = /("?&nbsp;<a href="#fnref:.+?" class="reversefootnote">↩(<sup>.*?<\/sup>)*<\/a>)+/s;
+    const footnoteMarks = document.querySelectorAll("a.footnote");
+    for (let index of footnoteMarks.keys()) {
+      if (footnotes[index] === undefined) continue;
+      const content = footnotes[index].innerHTML.replace(returnMarkRegex, "");
+      const footnote = footnoteMarks[index];
+      tippy(footnote, {
+        content: content,
+        arrow: true,
+        animation: 'shift-away',
+        interactive: true,
+        theme: 'light',
+        // trigger: 'click',
+        size: 'large',
+        touch: false,
+        touchHold: true,
+      });
+    }
+  })();
+</script>
+
+
+
+<script type="text/javascript">
+  // Add "active" highlight to TOC on left.
+  // Credit: https://codemyui.com/sidebar-menu-scroll-progress-indicator/
+  (function() {
+    const svg_html = ' \
+      <svg class="toc-marker" width="200" height="200" \
+           xmlns="http://www.w3.org/2000/svg"> \
+        <path stroke="#444" stroke-width="1.5" fill="transparent" \
+              stroke-dasharray="0, 0, 0, 1000" stroke-linecap="round" \
+              stroke-linejoin="round" transform="translate(-0.5, -0.5)" /> \
+      </svg> \
+      '
+    document.querySelector("#table-of-contents .toc-wrapper").innerHTML += svg_html;
+  })();
+
+  // Jekyll renders everything on one level, so nested titles are not actuall
+  // nested in the DOM. We need to manually create the levels.
+  const contentElems = document.querySelector("article > div.post-content").children;
+  // A `tocItem` is a dictionary.
+  const tocItems = [].slice
+    .call(document.querySelectorAll("#table-of-contents li.toc-entry"))
+    .map(function(item) {
+      const anchor = item.querySelector("a");
+      const subList = item.querySelector("ul");
+      return {
+        item: item,
+        href: anchor.getAttribute("href").substr(1),  // remove '#' prefix
+        anchor: anchor,
+        subList: subList,
+      };
+    });
+  let tocPointer = 0;
+  const validTags = ["H1", "H2", "H3", "H4", "H5", "H6"];
+  for (let index = 0; index < contentElems.length; ++index) {
+    const elem = contentElems[index];
+    if (validTags.indexOf(elem.tagName) !== -1) {
+      const level = parseInt(elem.tagName[1]);
+
+      if (tocPointer > 0 && tocPointer <= tocItems.length) {
+        tocItems[tocPointer - 1].targetBottom = contentElems[index - 1];
+      }
+
+      // Current element matches the next entry in the TOC.
+      if (tocPointer < tocItems.length &&
+          elem.id === tocItems[tocPointer].href) {
+        const curTocItem = tocItems[tocPointer];
+        curTocItem.level = level;
+        curTocItem.titleElem = elem;
+        ++tocPointer;
+      }
+    }
+  }
+  // Final TOC items has not yet ended.
+  if (tocPointer > 0 && tocPointer <= tocItems.length) {
+    tocItems[tocPointer - 1].targetBottom = contentElems[contentElems.length - 1];
+  }
+
+  let pathLength;
+
+  const tocPath = document.querySelector('.toc-marker path');
+
+  function drawPath() {
+    const path = [];
+    let pathIndent,
+        topOffset = 0;
+
+    // pathLength = 100000;
+    // setActivePath(currentActiveIndex);
+
+    tocItems.forEach(function(item) {
+      const x = item.anchor.offsetLeft - 5,
+            height = item.anchor.offsetHeight;
+      const y = topOffset;
+
+      const parent = item.item.parentNode;
+      
+      if (!(parent.classList.contains("section-nav") ||
+            parent.parentNode.classList.contains("expand"))) {
+        // Top-level section.
+        item.pathStart = 0;
+        item.pathEnd = 0;
+        return;
+      }
+
+      if (path.length === 0) {
+        path.push( 'M', x, y, 'L', x, y + height );
+        item.pathStart = 0;
+      } else {
+        // Draw an additional line when there's a change in
+        // indent levels.
+        if (pathIndent !== x) path.push('L', pathIndent, y);
+        path.push('L', x, y);
+
+        // Set the current path so that we can measure it.
+        tocPath.setAttribute('d', path.join(' '));
+        item.pathStart = tocPath.getTotalLength() || 0;
+
+        path.push('L', x, y + height);
+      }
+      topOffset += height;
+
+      pathIndent = x;
+      tocPath.setAttribute('d', path.join(' '));
+      item.pathEnd = tocPath.getTotalLength();
+    });
+
+    pathLength = tocPath.getTotalLength();
+  }
+
+  let currentActiveIndex = null;
+
+  function setActivePath(index) {
+    // Specify the visible path or hide the path altogether
+    // if there are no visible items.
+    if (index !== null) {
+      const pathStart = tocItems[index].pathStart;
+      const pathEnd = tocItems[index].pathEnd;
+      if (pathEnd === 0) {
+        // no-op
+      } else {
+        tocPath.setAttribute('stroke-dashoffset', '1');
+        // Set dash end to an infinitely large value to avoid
+        // accidental repetition of pattern.
+        tocPath.setAttribute(
+          'stroke-dasharray',
+          '1, ' + pathStart + ', '+ (pathEnd - pathStart) + ', ' + 10000000);
+        tocPath.setAttribute('opacity', 1);
+      }
+      // console.log(index, tocItems[index].href, pathStart, pathEnd, pathLength);
+    } else {
+      tocPath.setAttribute('opacity', 0);
+    }
+  }
+
+  function setActiveEntryClass(index, className) {
+    // Set CSS classes for the current index and ancestors.
+    const isActive = Array(tocItems.length).fill(false);
+    // Compute heights of each item after expanding here, because `scrollHeight`
+    // does not take into account inner height of nested non-expanded lists that
+    // will also be expanded next.
+    const expandedHeights = Array(tocItems.length).fill(0);
+
+    if (index !== null) {
+      let item = tocItems[index];
+      let curLevel = Infinity;
+      let accumulateHeight = 0;
+      for (let i = index; i >= 0; --i) {
+        item = tocItems[i];
+        if (item.level < curLevel) {
+          curLevel = item.level;
+          if (item.subList !== null)
+            accumulateHeight += item.subList.scrollHeight;
+          expandedHeights[i] = accumulateHeight;
+          isActive[i] = true;
+        }
+      }
+    }
+
+    const itemsToAdd = [], itemsToRemove = [];
+    const addHeights = [];
+    for (let i = 0; i < tocItems.length; ++i) {
+      const item = tocItems[i];
+      if (item.item.classList.contains(className)) {
+        if (!isActive[i]) {
+          item.item.classList.remove(className);
+          if (item.subList !== null) {
+            itemsToRemove.push(item.subList);
+          }
+        }
+      } else {
+        if (isActive[i]) {
+          item.item.classList.add(className);
+          if (item.subList !== null) {
+            itemsToAdd.push(item.subList);
+            addHeights.push(expandedHeights[i]);
+          }
+        }
+      }
+    }
+
+    return {
+      add: itemsToAdd,
+      addHeights: addHeights,
+      remove: itemsToRemove,
+    };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Ticket-based queue.
+  let transitionTicket = 0, transitionCounter = 0;
+
+  // Credit: https://css-tricks.com/using-css-transitions-auto-dimensions/
+  async function toggleItems() {
+
+    // Empty loop waiting for ticket.
+    const ticket = transitionCounter++;
+    while (ticket !== transitionTicket) {
+      await sleep(100);
+    }
+
+    // if (ticket + 1 !== transitionCounter) {
+    //   transitionTicket = ticket + 1;
+    //   return;
+    // }
+
+    // Use the latest active index.
+    const index = currentActiveIndex;
+    itemChanges = setActiveEntryClass(index, "expand");
+
+    if (itemChanges.add.length === 0 && itemChanges.remove.length === 0) {
+      // if (ticket + 1 === transitionCounter) {
+        // Only perform callback on final ticket.
+        // drawPath();
+        setActivePath(index);
+      // }
+      // Null transition, release ticket.
+      transitionTicket = ticket + 1;
+      return;
+    }
+
+    const firstItem = (itemChanges.add.length > 0 ?
+                       itemChanges.add[0] : itemChanges.remove[0]);
+    const originalTransition = firstItem.style.transition;
+    const allItems = itemChanges.add.concat(itemChanges.remove);
+
+    const targetHeight = itemChanges.addHeights;
+    allItems.forEach(item => item.style.transition = "");
+    for (let item of itemChanges.add) {
+      item.style.height = "0";
+    }
+    for (let item of itemChanges.remove) {
+      item.style.height = item.scrollHeight + "px";
+    }
+    firstItem.offsetHeight;  // trigger reflow
+
+    requestAnimationFrame(function() {
+      for (let i = 0; i < itemChanges.add.length; ++i) {
+        const item = itemChanges.add[i];
+        item.style.height = targetHeight[i] + "px";
+      }
+      for (let i = 0; i < itemChanges.remove.length; ++i) {
+        const item = itemChanges.remove[i];
+        item.style.height = "0";
+      }
+      allItems.forEach(item => item.style.transition = originalTransition);
+      firstItem.offsetHeight;  // trigger reflow
+
+      firstItem.addEventListener('transitionend', function(e) {
+        // Event listeners are also fired for children nodes.
+        if (e.target !== firstItem) return;
+        e.target.removeEventListener(e.type, arguments.callee);
+        for (let item of itemChanges.add) {
+          item.style.height = "auto";
+        }
+        for (let item of itemChanges.remove) {
+          item.style.height = null;
+        }
+        firstItem.offsetHeight;  // trigger reflow
+
+        // End of transition, release ticket.
+        transitionTicket = ticket + 1;
+      });
+
+      drawPath();
+      setActivePath(index);
+    });
+  }
+
+  function updateActive(event, forceRedraw = false) {
+    const windowHeight = window.innerHeight;
+
+    // We only allow one entry to be active. This entry must satisfy one of the
+    // following conditions:
+    // 1. Its section is the only section visible on screen.
+    // 2. Its title (`targetTop`) is the first title that is within screen bounds.
+    const titlePos = tocItems.map(function(item) {
+      return item.titleElem.getBoundingClientRect();
+    });
+    const targetBottom = tocItems.map(function(item) {
+      return item.targetBottom.getBoundingClientRect().bottom;
+    });
+
+    let index = 0;
+    for (; index < tocItems.length; ++index) {
+      if (// Any portion of title is within screen bounds.
+          (0 < titlePos[index].bottom && titlePos[index].top < windowHeight) ||
+          // Section is the only one on screen...
+          (titlePos[index].top < 0 &&
+            // ... and is the final section.
+           ((index === tocItems.length - 1 &&
+             targetBottom[index] > 0) ||
+            // ... and the next section title is not completely shown.
+            (index < tocItems.length - 1 &&
+             titlePos[index + 1].bottom > windowHeight)))) {
+        break;
+      }
+    }
+    if (index >= tocItems.length) index = null;
+
+    if (currentActiveIndex !== index || forceRedraw) {
+      // console.log("redraw", currentActiveIndex, index, forceRedraw);
+      currentActiveIndex = index;
+
+      // setActivePath(index);
+      setActiveEntryClass(index, "active");
+
+      requestAnimationFrame(function() {
+        toggleItems();
+      });
+    }
+  }
+
+  drawPath();
+  updateActive(true);
+  window.addEventListener('resize', function(event) {
+    updateActive(event, true);
+  }, false);
+  window.addEventListener('scroll', updateActive, false);
+</script>
+
+
+<footer class="site-footer">
+
+  <div class="wrapper">
+    <div class="social-links">
+      
+      <a class="social-link social-github" href="https://github.com/huzecong">
+        <i class="icon-github"></i>
+      </a>
+      
+      
+      
+      <a class="social-link social-rss" href="/feed.xml" target="_blank">
+        <i class="icon-rss"></i>
+      </a>
+    </div>
+    <div class="credits">
+      KAGAMI, made with <i class="icon-heart"></i> by Kamikat
+    </div>
+  </div>
+
+</footer>
+
+
+</body>
+
+</html>

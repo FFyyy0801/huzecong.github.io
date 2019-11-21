@@ -27,10 +27,10 @@ Zecong Hu (Chinese: 胡泽聪), **<a href="/CV_Zecong-HU.pdf" target="_blank">Cu
 
 **Awards & Honors:**
 
-- Gold medalist @ NOI 2013
-- Gold medalist @ ACM/ICPC 2014 Asia Regionals
-- Outstanding Graduate Award @ Tsinghua University, 2018
 - 1st place @ Bloomberg CodeCon, 2019
+- Outstanding Graduate Award @ Tsinghua University, 2018
+- Gold medalist @ ACM/ICPC 2014 Asia Regionals
+- Gold medalist @ NOI 2013 (Chinese Olympiad in Informatics)
 
 **Projects:**
 
@@ -41,7 +41,7 @@ Zecong Hu (Chinese: 胡泽聪), **<a href="/CV_Zecong-HU.pdf" target="_blank">Cu
 
 - [Latent Relation Language Models.](https://arxiv.org/abs/1908.07690)<br/>
   Hiroaki Hayashi\*, Zecong Hu\*, Chenyan Xiong, Graham Neubig.<br/>
-  *arXiv preprint*, 2019.
+  *Proceedings of the Thirty-Fourth AAAI Conference on Artificial Intelligence (AAAI)*, 2020.
 - [SOURCE: Source-Conditional ELMo-Style Model for Machine Translation Quality Estimation.](https://www.aclweb.org/anthology/W19-5411/)<br/>
   Junpei Zhou\*, Zhisong Zhang\*, Zecong Hu\*.<br/>
   *Proceedings of the Fourth Conference on Machine Translation (WMT)*, 2019.<br/>
